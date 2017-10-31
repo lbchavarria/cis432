@@ -128,4 +128,18 @@ struct text_error {
         char txt_error[SAY_MAX]; // Error message
 };
 
+//added
+struct channels {
+	int nchannels, nusers, user_maxsize;
+	char txt_channel[CHANNEL_MAX];
+	struct users *txt_users;
+} packed;
+
+//added
+struct users {
+	char username[USERNAME_MAX];
+	char current_channel[CHANNEL_MAX];
+	char *sub_channels[CHANNEL_MAX];
+}
+
 #endif

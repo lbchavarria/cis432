@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <string.h>
 #include "duckchat.h"
+#include "raw.h"
 
 char channel[CHANNEL_MAX], text[SAY_MAX];
 
@@ -14,37 +15,37 @@ int request_handler(struct request req) {
     if (req.req_type == REQ_LOGIN) {
         struct request_login req_login = (request_login)req;
         strcpy(req_login.req_username, argv[3]);
-        return sendto(sockid, req_login, sizeof(request_login), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+        return sendto(sockid, (request *)&req_login, sizeof(request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
 
     }
     else if (req.req_type == REQ_LOGOUT) {
         struct request_logout req_logout = (request_logout)req;
-        return sendto(sockid, req_logout, sizeof(request_logout), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+        return sendto(sockid, (request *)&req_logout, sizeof(request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
     }
     else if (req.req_type == REQ_JOIN) {
         struct request_join req_join = (request_join)req;
         strcpy(req_join.req_channel, channel);
-        return sendto(sockid, req_join, sizeof(request_join), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+        return sendto(sockid, (request *)&req_join, sizeof(request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
     }
     else if (req.req_type == REQ_LEAVE) {
         struct request_leave req_leave = (request_leave)req;
         strcpy(req_leave.req_channel, channel);
-        return sendto(sockid, req_leave, sizeof(request_leave), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+        return sendto(sockid, (request *)&req_leave, sizeof(request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
     }
     else if (req.req_type == REQ_SAY) {
         struct request_say req_say = (request_say)req;
         strcpy(req_say.req_channel, channel);
         strcpy(req_say.req_text, text);
-        return sendto(sockid, req_say, sizeof(request_say), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+        return sendto(sockid, (request *)&req_say, sizeof(request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
     }
     else if (req.req_type == REQ_LIST) {
         struct request_list req_list = (request_list)req;
-        return sendto(sockid, req_list, sizeof(request_list), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+        return sendto(sockid, (request *)&req_list, sizeof(request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
     }
     else if (req.req_type == REQ_WHO) {
         struct request_who req_who = (request_who)req;
         strcpy(req_who.req_channel, channel);
-        return sendto(sockid, req_who, sizeof(request_who), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+        return sendto(sockid, (request *)&req_who, sizeof(request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
     }
 }
 
@@ -73,6 +74,12 @@ request_t exception_handler(char text[]) {
             channel[i] = text[strlen("/who ")+i];
         }
         return REQ_WHO;
+    }
+    if (strncmp(text, "/switch", strlen("/switch")) == 0) {
+        for (i = 0; i < (strlen(text) - strlen("/switch ")); i++) {
+            channel[i] = text[strlen("/switch ")+i];
+        }
+        return -1;
     }
     return REQ_SAY;
 }
@@ -114,9 +121,16 @@ int main(int argc, char *argv[]) {
         printf("Client: sendto failed: %d\n", errno);
         return -1;
     }
+    
+    if (raw_mode() == -1) {
+        printf("Raw mode failed\n");
+    }
 
     while (1) {
         req.req_type = exception_handler(text);
+        if (req.req_type == -1) {
+            continue;
+        }
         retcode = request_handler(req);
         if (retcode <= -1) {
             printf("Client: sendto failed: %d\n", errno);
@@ -124,5 +138,7 @@ int main(int argc, char *argv[]) {
         }
     }
     
+    cooked_mode();
     close(sockid);
+    return 0;
 }
