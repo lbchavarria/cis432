@@ -9,7 +9,7 @@
 #include "duckchat.h"
 #include "raw.h"
 
-char channel[CHANNEL_MAX], text[SAY_MAX];
+char channel[CHANNEL_MAX], text[SAY_MAX], buff;
 
 int request_handler(struct request req) {
     if (req.req_type == REQ_LOGIN) {
@@ -85,7 +85,7 @@ request_t exception_handler(char text[]) {
 }
 
 int main(int argc, char *argv[]) {
-    int sockid, retcode;
+    int sockid, retcode, i;
     struct sockaddr_in my_addr, server_addr;
 
     sockid = socket(AF_INET, SOCK_DGRAM, 0);
@@ -127,6 +127,20 @@ int main(int argc, char *argv[]) {
     }
 
     while (1) {
+        i = 0;
+        while (1) {
+            read(0, &buff, 1);
+            if (buff == '\b' && i > 1) {
+                text[--i] = '';
+            }
+            else if (buff == '\r') {
+                break;
+            }
+            else {
+                strcpy(text[i], buff);
+                i++;
+            }
+        }
         req.req_type = exception_handler(text);
         if (req.req_type == -1) {
             continue;

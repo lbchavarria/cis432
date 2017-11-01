@@ -129,17 +129,32 @@ struct text_error {
 };
 
 //added
-struct channels {
-	int nchannels, nusers, user_maxsize;
-	char txt_channel[CHANNEL_MAX];
-	struct users *txt_users;
-} packed;
-
-//added
-struct users {
+typedef struct user {
+        int subsize;
+        int nsub;
+	struct sockaddr_in client_addr;
 	char username[USERNAME_MAX];
 	char current_channel[CHANNEL_MAX];
-	char *sub_channels[CHANNEL_MAX];
-}
+	char **sub_channels;//[CHANNEL_MAX];
+} User;
+
+//added
+typedef struct user_list {
+	int size;
+	User *list;
+} UserList;
+
+//added
+typedef struct channel {
+	int  user_size;
+	char txt_channel[CHANNEL_MAX];
+	UserList txt_users;
+} Channel;
+
+//added
+typedef struct channel_list {
+	int size;
+	Channel *list;
+} ChannelList;
 
 #endif
