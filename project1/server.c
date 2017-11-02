@@ -91,10 +91,10 @@ int main(int argc, char *argv[]) {
     }
 
     while(1) {
-        nread = recvfrom(sockid, req, sizeof(request), 0, (struct sockaddr *) &client_addr, &addrlen);
+        nread = recvfrom(sockid, req, sizeof(struct request), 0, (struct sockaddr *) &client_addr, &addrlen);
         if (nread > 0) {
             if (req.req_type == REQ_LOGIN) {
-                struct request_login *req_login = (request_login *)&req;
+                struct request_login *req_login = (struct request_login *)&req;
                 strcpy(user.username, req_login->req_username);
                 strcpy(user.current_channel, "Common");
                 user.client_addr = client_addr;
@@ -137,7 +137,7 @@ int main(int argc, char *argv[]) {
                 }
             }
             else if (req.req_type == REQ_LOGOUT) {
-                struct request_logout *req_logout = (request_logout *)&req;
+                struct request_logout *req_logout = (struct request_logout *)&req;
                 for (i = 0; i < user_list.size; i++) {
                     if (user_list.list[i]->client_addr == client_addr) {
                         temp_user = user_list.list[i];
@@ -163,7 +163,8 @@ int main(int argc, char *argv[]) {
                 }
             }
             else if (req.req_type == REQ_JOIN) {
-                struct request_join *req_join = (request_join *)&req;
+                struct request_join *req_join = (struct request_join *)&req;
+                ch_exist = 0;
                 strcpy(channel.txt_channel, req_join->req_channel);
                 for (i = 0; i < user_list.size; i++) {
                     if (user_list.list[i]->client_addr == client_addr) {
@@ -241,23 +242,63 @@ int main(int argc, char *argv[]) {
                 destroy_user(temp_user);
             }
             else if (req.req_type == REQ_LEAVE) {
-                struct request_leave *req_leave = (request_leave *)&req;
+                struct request_leave *req_leave = (struct request_leave *)&req;
+                ch_exist = 0;
+                strcpy(channel.txt_channel, req_leave->req_channel);
                 for (i = 0; i < user_list.size; i++) {
                     if (user_list.list[i]->client_addr == client_addr) {
-                        
+                        for (j = 0; j < channel_list.size; j++) {
+                            if (strcmp(channel_list.list[j]->txt_channel, channel.txt_channel) == 0) {
+                                ch_exist = 1;
+                                for (k = 0; k < channel_list.list[j]->txt_users.size; k++) {
+                                    if (channel_list.list[j]->txt_users.list[k]->client_addr == client_addr) {
+                                        channel_list.list[j]->txt_users.list[k] = NULL;
+                                        channel_list.list[j]->user_size--;
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                            else {
+                                ch_exist = 0;
+                            }
+                        }
+                        if (!ch_exist) {
+                            //send error
+                            break;
+                        }
+                        for (j = 0; j < user_list.list[i]->subsize; j++) {
+                            if (strcmp(user_list.list[i]->sub_channels[j], channel.txt_channel) == 0) {
+                                strcpy(user_list.list[i]->sub_channels[j], "");
+                                user_list.list[i]->nsub--;
+                                ch_exist = 1;
+                                break;
+                            }
+                            else {
+                                ch_exist = 0;
+                            }
+                        }
+                        if (!ch_exist) {
+                            //send error
+                            break;
+                        }
+                        if (strcmp(user_list.list[i]->current_channel, channel.txt_channel) == 0) {
+                            strcpy(user_list.list[i]->current_channel, "");
+                        }
+                        break;
                     }
                 }
             }
             else if (req.req_type == REQ_SAY) {
-                struct request_say *req_say = (request_say *)&req;
+                struct request_say *req_say = (struct request_say *)&req;
                 txt.text_type = TXT_SAY;
             }
             else if (req.req_type == REQ_LIST) {
-                struct request_list *req_list = (request_list *)&req;
+                struct request_list *req_list = (struct request_list *)&req;
                 txt.text_type = TXT_LIST;
             }
             else if (req.req_type == REQ_WHO) {
-                struct request_who *req_who = (request_who *)&req;
+                struct request_who *req_who = (struct request_who *)&req;
                 txt.text_type = TXT_WHO;
             }
         }
