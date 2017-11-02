@@ -14,7 +14,7 @@
 #define UNUSED __attribute__ ((unused))
 
 int sockid;
-char channel[CHANNEL_MAX], text[SAY_MAX], buff;
+char i_channel[CHANNEL_MAX], text[SAY_MAX], buff;
 struct sockaddr_in server_addr;
 
 
@@ -25,13 +25,13 @@ request_t exception_handler(char text[]) {
     }
     if (strncmp(text, "/join", strlen("/join")) == 0) {
         for (i = 0; i < (strlen(text) - strlen("/join ")); i++) {
-            channel[i] = text[strlen("/join ")+i];
+            i_channel[i] = text[strlen("/join ")+i];
         }
         return REQ_JOIN;
     }
     if (strncmp(text, "/leave", strlen("/leave")) == 0) {
         for (i = 0; i < (strlen(text) - strlen("/leave ")); i++) {
-            channel[i] = text[strlen("/leave ")+i];
+            i_channel[i] = text[strlen("/leave ")+i];
         }
         return REQ_LEAVE;
     }
@@ -40,13 +40,13 @@ request_t exception_handler(char text[]) {
     }
     if (strncmp(text, "/who", strlen("/who")) == 0) {
         for (i = 0; i < (strlen(text) - strlen("/who ")); i++) {
-            channel[i] = text[strlen("/who ")+i];
+            i_channel[i] = text[strlen("/who ")+i];
         }
         return REQ_WHO;
     }
     if (strncmp(text, "/switch", strlen("/switch")) == 0) {
         for (i = 0; i < (strlen(text) - strlen("/switch ")); i++) {
-            channel[i] = text[strlen("/switch ")+i];
+            i_channel[i] = text[strlen("/switch ")+i];
         }
         return -1;
     }
@@ -181,21 +181,21 @@ int main(UNUSED int argc, char *argv[]) {
         else if (req.req_type == REQ_JOIN) {
             printf("Join\n");
             struct request_join req_join;// = (struct request_join *)&req;
-            strcpy(req_join.req_channel, channel);
+            strcpy(req_join.req_channel, i_channel);
             req_join.req_type = REQ_JOIN;
             retcode = sendto(sockid, (struct request *)&req_join, sizeof(struct request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
         }
         else if (req.req_type == REQ_LEAVE) {
             printf("Leave\n");
             struct request_leave req_leave;//= (struct request_leave *)&req;
-            strcpy(req_leave.req_channel, channel);
+            strcpy(req_leave.req_channel, i_channel);
             req_leave.req_type = REQ_LEAVE;
             retcode = sendto(sockid, (struct request *)&req_leave, sizeof(struct request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
         }
         else if (req.req_type == REQ_SAY) {
             printf("Say\n");
             struct request_say req_say;// = (struct request_say *)&req;
-            strcpy(req_say.req_channel, channel);
+            strcpy(req_say.req_channel, i_channel);
             strcpy(req_say.req_text, text);
             req_say.req_type = REQ_SAY;
             retcode = sendto(sockid, (struct request *)&req_say, sizeof(struct request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
@@ -209,7 +209,7 @@ int main(UNUSED int argc, char *argv[]) {
         else if (req.req_type == REQ_WHO) {
             printf("Who\n");
             struct request_who req_who;// = (struct request_who *)&req;
-            strcpy(req_who.req_channel, channel);
+            strcpy(req_who.req_channel, i_channel);
             req_who.req_type = REQ_WHO;
             retcode = sendto(sockid, (struct request *)&req_who, sizeof(struct request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
         }
