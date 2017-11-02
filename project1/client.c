@@ -81,7 +81,7 @@ void txt_handler(struct text *txt) {
 
 int main(UNUSED int argc, char *argv[]) {
     int retcode, nread, i;
-    struct sockaddr_in from;//my_addr;
+    struct sockaddr_in from, my_addr;
     struct hostent *hp;
 
     printf("Set up socket\n");
