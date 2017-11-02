@@ -270,8 +270,8 @@ int main(UNUSED int argc, char *argv[]) {
                 }
                 if (nusers > channel_list.list[0].txt_users.size) {
                     channel_list.list[0].user_size = nusers;
-                    channel_list.list[0].txt_users = realloc(channel_list.list[0].txt_users, sizeof(User)*channel_list.list[0].user_size);
-                    channel_list.list[0].txt_users[channel_list.list[0].user_size-1].isempty = 1;
+                    channel_list.list[0].txt_users = realloc(channel_list.list[0].txt_users.list, sizeof(User)*channel_list.list[0].user_size);
+                    channel_list.list[0].txt_users.list[channel_list.list[0].user_size-1].isempty = 1;
                 }
                 for (i = 0; i < channel_list.list[0].user_size; i++) {
                     if (channel_list.list[0].txt_users.list[i].isempty == 1) {
@@ -289,7 +289,7 @@ int main(UNUSED int argc, char *argv[]) {
                             for (k = 0; k < channel_list.size; k++) {
                                 if (strcmp(channel_list.list[k].txt_channel, temp_user.sub_channels[j]) == 0) {
                                     for (l = 0; l < channel_list.list[k].txt_users.size; l++) {
-                                        if (channel_list.list[k].txt_users.list[l] == temp_user) {
+                                        if (channel_list.list[k].txt_users.list[l].client_addr.sin_addr.s_addr == temp_user.client_addr.sin_addr.s_addr) {
                                             destroy_user(channel_list.list[k].txt_users.list[l]);
                                             channel_list.list[k].txt_users.list[l].isempty = 1;
                                         }
