@@ -219,7 +219,7 @@ int main(UNUSED int argc, char *argv[]) {
     for (i = 0; i < channel.user_size; i++) {
         channel.txt_users.list[i].isempty = 1;
     }
-    channel.txt_users.list->size = channel.user_size;
+    channel.txt_users.size = channel.user_size;
     
     channel_list.size = 0;
     channel_list.list = (Channel *)malloc(sizeof(Channel));
