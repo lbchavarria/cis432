@@ -134,14 +134,16 @@ int main(UNUSED int argc, char *argv[]) {
         perror("Client: sendto failed");
         return -1;
     }
-    
+    printf("Raw mode\n");
     if (raw_mode() == -1) {
         printf("Raw mode failed\n");
         return -1;
     }
 
+    printf("Start while loop\n");
     while (1) {
         i = 0;
+        printf("Start read\n");
         while (1) {
             read(0, &buff, 1);
             if (buff == '\b' && i > 1) {
@@ -158,6 +160,7 @@ int main(UNUSED int argc, char *argv[]) {
                 i++;
             }
         }
+        printf("Check exceptions\n");
         req.req_type = exception_handler(text);
         if (req.req_type == -1) {
             continue;
