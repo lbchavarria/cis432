@@ -8,6 +8,8 @@
 #include <string.h>
 #include "duckchat.h"
 
+#define UNUSED __attribute__ ((unused))
+
 typedef struct user {
     int subsize;
     int nsub;
@@ -85,7 +87,7 @@ void text_handler(struct text txt) {
     int i, j, k, ch_exist, retcode;
     if (txt.txt_type == TXT_SAY) {
         struct request_say *req_say = (struct request_say *)&req;
-        struct text_say txt_say = (struct text_say *)&txt;
+        struct text_say *txt_say = (struct text_say *)&txt;
         strcpy(txt_say->txt_channel, req_say->req_channel);
         strcpy(txt_say->txt_text, req_say->req_text);
         for (i = 0; i < user_list.size; i++) {
@@ -121,14 +123,14 @@ void text_handler(struct text txt) {
         return;
     }
     else if (txt.txt_type == TXT_LIST) {
-        struct request_list *req_list = (struct request_list *)&req;
-        struct text_list txt_list = (struct text_list)txt;
-        txt_list.txt_nchannels = channel_list.size;
-        struct channel_info channels[txt_list.txt_nchannels];
-        for (i = 0; i < txt_list.txt_nchannels; i++) {
+        //struct request_list *req_list = (struct request_list *)&req;
+        struct text_list *txt_list = (struct text_list *)&txt;
+        txt_list->txt_nchannels = channel_list.size;
+        struct channel_info channels[txt_list->txt_nchannels];
+        for (i = 0; i < txt_list->txt_nchannels; i++) {
             strcpy(channels[i].ch_channel, channel_list.list[i].txt_channel);
         }
-        txt_list.txt_channels = channels;
+        txt_list.->txt_channels = channels;
         retcode = sendto(sockid, (void *)&txt_list, sizeof(void *), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
         if (retcode <= -1) {
             perror("Server: sendto failed");
@@ -138,22 +140,22 @@ void text_handler(struct text txt) {
     else if (txt.txt_type == TXT_WHO) {
         k = 0;
         struct request_who *req_who = (struct request_who *)&req;
-        struct text_who txt_who = (struct text_who)txt;
-        strcpy(txt_who.txt_channel, req_who->req_channel);
+        struct text_who *txt_who = (struct text_who *)&txt;
+        strcpy(txt_who->txt_channel, req_who->req_channel);
         for (i = 0; i < channel_list.size; i++) {
-            if (strcmp(txt_who.txt_channel, channel_list.list[i].txt_channel) == 0) {
+            if (strcmp(txt_who->txt_channel, channel_list.list[i].txt_channel) == 0) {
                 ch_exist = 1;
-                txt_who.txt_nusernames = channel_list.list[i].user_size;
-                struct user_info users[txt_who.txt_nusernames];
+                txt_who->txt_nusernames = channel_list.list[i].user_size;
+                struct user_info users[txt_who->txt_nusernames];
                 for (j = 0; j < channel_list.list[i].txt_users.size; j++) {
                     if (channel_list.list[i].txt_users.list[j] != NULL && k < txt_who.txt_nusernames) {
-                        strcpy(users[k++], channel_list.list[i].txt_users.list[j].username);
+                        strcpy(users[k++].us_username, channel_list.list[i].txt_users.list[j].username);
                     }
-                    if (k >= txt_who.txt_nusernames) {
+                    if (k >= txt_who->txt_nusernames) {
                         break;
                     }
                 }
-                txt_who.txt_users = users;
+                txt_who->txt_users = users;
                 break;
             }
             else {
@@ -166,7 +168,7 @@ void text_handler(struct text txt) {
             strcpy(errtxt, "Channel does not exist\n");
             error_handler(errtxt);
         }
-        retcode = sendto(sockid, (void *)&txt_list, sizeof(void *), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
+        retcode = sendto(sockid, (void *)&txt_who, sizeof(void *), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
         if (retcode <= -1) {
             perror("Server: sendto failed");
         }
@@ -175,8 +177,8 @@ void text_handler(struct text txt) {
     
 }
 
-int main(int argc, char *argv[]) {
-    int nread, i, j, k, l, m, ch_exist;
+int main(UNUSED int argc, char *argv[]) {
+    int nread, i, j, k, l, ch_exist;
     int err = 0;
     struct sockaddr_in my_addr;
 
@@ -208,9 +210,9 @@ int main(int argc, char *argv[]) {
     //channel.nchannels = 0;
     //channel.nusers = 0;
     channel.user_size = 10;
-    channel.txt_users = (User *)malloc(sizeof(User)*channel.user_size);
+    channel.txt_users.list = (User *)malloc(sizeof(User)*channel.user_size);
     for (i = 0; i < channel.user_size; i++) {
-        channel.txt_users[i] = NULL;
+        channel.txt_users.list[i] = NULL;
     }
     
     channel_list.size = 0;
@@ -222,15 +224,16 @@ int main(int argc, char *argv[]) {
         user_list.list[i] = NULL;
     }
     User user, temp_user;
-    user.subsize = 1
+    user.subsize = 1;
     user.nsub = 0;
-    user.sub_channels = (char **)malloc(sizeof(char *)*subsize);
+    user.sub_channels = (char **)malloc(sizeof(char *)*user.subsize);
     for (i = 0; i < subsize; i++) {
         user.sub_channels[i] = (char *)malloc(sizeof(char)*CHANNEL_MAX);
     }
+    unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
 
     while(1) {
-        nread = recvfrom(sockid, req, sizeof(struct request), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
+        nread = recvfrom(sockid, (void *)req, sizeof(void *), 0, (struct sockaddr *) &client_addr, &len);
         if (nread > 0) {
             if (req.req_type == REQ_LOGIN) {
                 struct request_login *req_login = (struct request_login *)&req;
@@ -254,7 +257,7 @@ int main(int argc, char *argv[]) {
                 nusers++;
                 if (nusers > user_list.size) {
                     user_list.size = nusers;
-                    user_list.list = realloc(user_list.list, sizeof(Users)*user_list.size);
+                    user_list.list = realloc(user_list.list, sizeof(User)*user_list.size);
                     user_list.list[user_list.size-1] = NULL;
                 }
                 for (i = 0; i < user_list.size; i++) {
@@ -263,30 +266,30 @@ int main(int argc, char *argv[]) {
                         break;
                     }
                 }
-                if (nusers > channel_list.list[0].txt_users->size) {
+                if (nusers > channel_list.list[0].txt_users.size) {
                     channel_list.list[0].user_size = nusers;
-                    channel_list.list[0].txt_users = realloc(channel_list.list[0].txt_users, sizeof(Users)*channel_list.list[0].user_size);
-                    channel_list.list[0].txt_users[user_size-1] = NULL;
+                    channel_list.list[0].txt_users = realloc(channel_list.list[0].txt_users, sizeof(User)*channel_list.list[0].user_size);
+                    channel_list.list[0].txt_users[channel_list.list[0].user_size-1] = NULL;
                 }
                 for (i = 0; i < channel_list.list[0].user_size; i++) {
-                    if (channel_list.list[0].txt_users[i] == NULL) {
-                        channel_list.list[0].txt_users[i] = user;
+                    if (channel_list.list[0].txt_users.list[i] == NULL) {
+                        channel_list.list[0].txt_users.list[i] = user;
                         break;
                     }
                 }
             }
             else if (req.req_type == REQ_LOGOUT) {
-                struct request_logout *req_logout = (struct request_logout *)&req;
+                //struct request_logout *req_logout = (struct request_logout *)&req;
                 for (i = 0; i < user_list.size; i++) {
                     if (user_list.list[i].client_addr == client_addr) {
                         temp_user = user_list.list[i];
                         for (j = 0; j < temp_user.nsub; j++) {
                             for (k = 0; k < channel_list.size; k++) {
                                 if (strcmp(channel_list.list[k].txt_channel, temp_user.sub_channels[j]) == 0) {
-                                    for (l = 0; l < channel_list.list[k].txt_users->size; l++) {
-                                        if (channel_list.list[k].txt_users[l] == temp_user) {
-                                            destroy_user(channel_list[k].txt_users[l]);
-                                            channel_list[k].txt_users[l] = NULL;
+                                    for (l = 0; l < channel_list.list[k].txt_users.size; l++) {
+                                        if (channel_list.list[k].txt_users.list[l] == temp_user) {
+                                            destroy_user(channel_list.list[k].txt_users.list[l]);
+                                            channel_list.list[k].txt_users.list[l] = NULL;
                                         }
                                     }
                                 }
@@ -377,8 +380,8 @@ int main(int argc, char *argv[]) {
                             channel_list.size++;
                             channel_list.list = realloc(channel_list.list, sizeof(Channel)*channel_list.size);
                             channel_list.list[channel_list.size-1] = channel;
-                            channel_list.list[channel_list.size-1].txt_users[0] = temp_user;
-                            strcpy(channel_list.list[channel_list.size-1].txt_users[0].current_channel, channel.txt_channel);
+                            channel_list.list[channel_list.size-1].txt_users.list[0] = temp_user;
+                            strcpy(channel_list.list[channel_list.size-1].txt_users.list[0].current_channel, channel.txt_channel);
                             break;
                         }
                     }
@@ -442,20 +445,20 @@ int main(int argc, char *argv[]) {
             }
             else if (req.req_type == REQ_SAY) {
                 
-                txt.text_type = TXT_SAY;
+                txt.txt_type = TXT_SAY;
                 //retcode =
                 text_handler(txt);
                 
             }
             else if (req.req_type == REQ_LIST) {
                 
-                txt.text_type = TXT_LIST;
+                txt.txt_type = TXT_LIST;
                 //retcode =
                 text_handler(txt);
             }
             else if (req.req_type == REQ_WHO) {
                 
-                txt.text_type = TXT_WHO;
+                txt.txt_type = TXT_WHO;
                 //retcode =
                 text_handler(txt);
             }
