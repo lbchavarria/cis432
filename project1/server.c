@@ -76,7 +76,7 @@ void error_handler(char txt[]) {
     strcpy(txt_error.txt_error, txt);
     retcode = sendto(sockid, (void *)&txt_error, sizeof(void *), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
     if (retcode <= -1) {
-        printf("Server: sendto failed: %d\n", errno);
+        perror("Server: sendto failed");
     }
 }
 
@@ -102,7 +102,7 @@ void text_handler(struct text txt) {
                 for (j = 0; j < channel_list.list[i]->txt_users.size; j++) {
                     retcode = sendto(sockid, (void *)&txt_say, sizeof(void *), 0, (struct sockaddr *) &channel_list.list[i]->txt_users.list[j]->client_addr, sizeof(channel_list.list[i]->txt_users.list[j]->client_addr));
                     if (retcode <= -1) {
-                        printf("Server: sendto failed to user %s: %d\n", channel_list.list[i]->txt_users.list[j]->username, errno);
+                        perror("Server: sendto failed to user");
                     }
                 }
                 break;
@@ -130,7 +130,7 @@ void text_handler(struct text txt) {
         txt_list.txt_channels = channels;
         retcode = sendto(sockid, (void *)&txt_list, sizeof(void *), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
         if (retcode <= -1) {
-            printf("Server: sendto failed: %d\n", errno);
+            perror("Server: sendto failed");
         }
         return;
     }
@@ -167,7 +167,7 @@ void text_handler(struct text txt) {
         }
         retcode = sendto(sockid, (void *)&txt_list, sizeof(void *), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
         if (retcode <= -1) {
-            printf("Server: sendto failed: %d\n", errno);
+            perror("Server: sendto failed");
         }
         return;
     }
@@ -181,7 +181,7 @@ int main(int argc, char *argv[]) {
 
     sockid = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockid < 0) {
-        printf("Server: socket error: %d\n", errno);
+        perror("Server: socket error");
         exit(0);
     }
 
@@ -190,7 +190,7 @@ int main(int argc, char *argv[]) {
     my_addr.sin_addr.s_addr = htons(INADDR_ANY);
     my_addr.sin_port = htons(atoi(argv[2]));
     if (bind(sockid, (struct sockaddr *) &my_addr, sizeof(my_addr)) < 0) {
-        printf("Server: bind fail: %d\n", errno);
+        perror("Server: bind fail");
         exit(0);
     }
 

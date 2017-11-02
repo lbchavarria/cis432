@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlin.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -9,6 +10,8 @@
 #include <unistd.h>
 #include "duckchat.h"
 #include "raw.h"
+
+#define UNUSED __attribute__ ((unused))
 
 int sockid;
 char channel[CHANNEL_MAX], text[SAY_MAX], buff;
@@ -76,20 +79,22 @@ void txt_handler(struct text txt) {
     }
 }
 
-int main(int argc, char *argv[]) {
+int main(UNUSED int argc, char *argv[]) {
     int retcode, nread, i;
     struct sockaddr_in my_addr;
+    struct hostent *hp;
 
     sockid = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockid < 0) {
-        printf("Client: socket failed: %d\n", errno);
+        perror("Client: socket failed");
         return -1;
     }
-
+    
+    /*
     bzero((char *) &my_addr, sizeof(my_addr));
     my_addr.sin_family = AF_INET;
-    my_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    my_addr.sin_port = htons(argv[2]);
+    //my_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    my_addr.sin_port = htons(atoi(argv[2]));
     if (bind(sockid, (struct sockaddr *) &my_addr, sizeof(my_addr)) < 0) {
         printf("Client: bind fail: %d\n", errno);
         return -1;
@@ -99,7 +104,17 @@ int main(int argc, char *argv[]) {
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = gethostbyname(argv[1]);
     server_addr.sin_port = htons(atoi(argv[2]));
+    */
     
+    server_addr.sin_family = AF_INET;
+    hp = gethostbyname(argv[1]);
+    if (hp == 0) {
+        perror("Client: unknown host")
+        return -1;
+    }
+    bcopy((char *)hp->h_addr, (char *)&server_addr.sin_addr, hp->h_length);
+    server_addr.sin_port = htons(atoi(argv[2]));
+     
     struct request req;
     struct text txt;
 
@@ -113,7 +128,7 @@ int main(int argc, char *argv[]) {
     strcpy(req_login->req_username, argv[3]);
     retcode = sendto(sockid, (void *)&req_login, sizeof(void *), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
     if (retcode <= -1) {
-        printf("Client: sendto failed: %d\n", errno);
+        perror("Client: sendto failed");
         return -1;
     }
     
@@ -175,12 +190,12 @@ int main(int argc, char *argv[]) {
         }
         //retcode = request_handler(req);
         if (retcode <= -1) {
-            printf("Client: sendto failed: %d\n", errno);
+            perror("Client: sendto failed");
             //return -1;
         }
-        nread = recvfrom(sockid, (void *)&txt, sizeof(void *), 0, (struct sockaddr *) &server_addr, (socklen_t *)sizeof(server_addr));
+        nread = recvfrom(sockid, (void *)&txt, sizeof(void *), 0, (struct sockaddr *) &server_addr, &(sizeof(server_addr)));
         if (nread > 0) {
-            txt_handler(()&txt);
+            txt_handler((struct text *)&txt);
         }
     }
     
