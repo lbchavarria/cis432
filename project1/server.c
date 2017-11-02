@@ -199,7 +199,7 @@ int main(UNUSED int argc, char *argv[]) {
     }
 
     int nusers = 0;
-    //struct request req;
+    struct request reqs;
     //struct channel_info current_channel;
     //struct user_info user_i;
     struct text txt;
@@ -236,10 +236,11 @@ int main(UNUSED int argc, char *argv[]) {
 
     while(1) {
         printf("Receive\n");
-        nread = recvfrom(sockid, (void *)&req, sizeof(void *), 0, (struct sockaddr *) &client_addr, &len);
+        nread = recvfrom(sockid, (void *)&reqs, sizeof(void *), 0, (struct sockaddr *) &client_addr, &len);
         if (nread > 0) {
             printf("Reveived\n");
-            if (req.req_type == REQ_LOGIN) {
+            struct request *req = (struct request *)&reqs;
+            if (req->req_type == REQ_LOGIN) {
                 printf("Login\n");
                 struct request_login *req_login = (struct request_login *)&req;
                 strcpy(user.username, req_login->req_username);
@@ -283,7 +284,7 @@ int main(UNUSED int argc, char *argv[]) {
                     }
                 }
             }
-            else if (req.req_type == REQ_LOGOUT) {
+            else if (req->req_type == REQ_LOGOUT) {
                 printf("Logout\n");
                 //struct request_logout *req_logout = (struct request_logout *)&req;
                 for (i = 0; i < user_list.size; i++) {
@@ -310,7 +311,7 @@ int main(UNUSED int argc, char *argv[]) {
                     }
                 }
             }
-            else if (req.req_type == REQ_JOIN) {
+            else if (req->req_type == REQ_JOIN) {
                 printf("Join\n");
                 struct request_join *req_join = (struct request_join *)&req;
                 ch_exist = 0;
@@ -396,7 +397,7 @@ int main(UNUSED int argc, char *argv[]) {
                 err = 0;
                 destroy_user(temp_user);
             }
-            else if (req.req_type == REQ_LEAVE) {
+            else if (req->req_type == REQ_LEAVE) {
                 printf("Leave\n");
                 struct request_leave *req_leave = (struct request_leave *)&req;
                 ch_exist = 0;
@@ -451,20 +452,20 @@ int main(UNUSED int argc, char *argv[]) {
                     }
                 }
             }
-            else if (req.req_type == REQ_SAY) {
+            else if (req->req_type == REQ_SAY) {
                 printf("Say\n");
                 txt.txt_type = TXT_SAY;
                 //retcode =
                 text_handler(txt);
                 
             }
-            else if (req.req_type == REQ_LIST) {
+            else if (req->req_type == REQ_LIST) {
                 printf("List\n");
                 txt.txt_type = TXT_LIST;
                 //retcode =
                 text_handler(txt);
             }
-            else if (req.req_type == REQ_WHO) {
+            else if (req->req_type == REQ_WHO) {
                 printf("Who\n");
                 txt.txt_type = TXT_WHO;
                 //retcode =
