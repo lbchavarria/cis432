@@ -91,7 +91,7 @@ void text_handler(struct text txt) {
         strcpy(txt_say->txt_channel, req_say->req_channel);
         strcpy(txt_say->txt_text, req_say->req_text);
         for (i = 0; i < user_list.size; i++) {
-            if (user_list.list[i].client_addr == client_addr) {
+            if (user_list.list[i].client_addr.sin_addr == client_addr.sin_addr) {
                 if (strcmp(user_list.list[i].current_channel, txt_say->txt_channel) != 0) {
                     strcpy(user_list.list[i].current_channel, txt_say->txt_channel);
                 }
@@ -130,7 +130,7 @@ void text_handler(struct text txt) {
         for (i = 0; i < txt_list->txt_nchannels; i++) {
             strcpy(channels[i].ch_channel, channel_list.list[i].txt_channel);
         }
-        txt_list.->txt_channels = channels;
+        memcpy(txt_list->txt_channels, channels, sizeof(channels));
         retcode = sendto(sockid, (void *)&txt_list, sizeof(void *), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
         if (retcode <= -1) {
             perror("Server: sendto failed");
@@ -148,14 +148,14 @@ void text_handler(struct text txt) {
                 txt_who->txt_nusernames = channel_list.list[i].user_size;
                 struct user_info users[txt_who->txt_nusernames];
                 for (j = 0; j < channel_list.list[i].txt_users.size; j++) {
-                    if (channel_list.list[i].txt_users.list[j] != NULL && k < txt_who.txt_nusernames) {
+                    if (channel_list.list[i].txt_users.list[j] != NULL && k < txt_who->txt_nusernames) {
                         strcpy(users[k++].us_username, channel_list.list[i].txt_users.list[j].username);
                     }
                     if (k >= txt_who->txt_nusernames) {
                         break;
                     }
                 }
-                txt_who->txt_users = users;
+                memcpy(txt_who->txt_users, users, sizeof(users));
                 break;
             }
             else {
@@ -227,13 +227,13 @@ int main(UNUSED int argc, char *argv[]) {
     user.subsize = 1;
     user.nsub = 0;
     user.sub_channels = (char **)malloc(sizeof(char *)*user.subsize);
-    for (i = 0; i < subsize; i++) {
+    for (i = 0; i < user.subsize; i++) {
         user.sub_channels[i] = (char *)malloc(sizeof(char)*CHANNEL_MAX);
     }
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
 
     while(1) {
-        nread = recvfrom(sockid, (void *)req, sizeof(void *), 0, (struct sockaddr *) &client_addr, &len);
+        nread = recvfrom(sockid, (void *)&req, sizeof(void *), 0, (struct sockaddr *) &client_addr, &len);
         if (nread > 0) {
             if (req.req_type == REQ_LOGIN) {
                 struct request_login *req_login = (struct request_login *)&req;
@@ -281,7 +281,7 @@ int main(UNUSED int argc, char *argv[]) {
             else if (req.req_type == REQ_LOGOUT) {
                 //struct request_logout *req_logout = (struct request_logout *)&req;
                 for (i = 0; i < user_list.size; i++) {
-                    if (user_list.list[i].client_addr == client_addr) {
+                    if (user_list.list[i].client_addr.sin_addr == client_addr.sin_addr) {
                         temp_user = user_list.list[i];
                         for (j = 0; j < temp_user.nsub; j++) {
                             for (k = 0; k < channel_list.size; k++) {
@@ -309,7 +309,7 @@ int main(UNUSED int argc, char *argv[]) {
                 ch_exist = 0;
                 strcpy(channel.txt_channel, req_join->req_channel);
                 for (i = 0; i < user_list.size; i++) {
-                    if (user_list.list[i].client_addr == client_addr) {
+                    if (user_list.list[i].client_addr.sin_addr == client_addr.sin_addr) {
                         temp_user = user_list.list[i];
                         break;
                     }
@@ -318,7 +318,7 @@ int main(UNUSED int argc, char *argv[]) {
                     if (strcmp(channel_list.list[i].txt_channel, channel.txt_channel) == 0) {
                         ch_exist = 1;
                         for (j = 0; j < channel_list.list[i].txt_users.size; j++) {
-                            if (channel_list.list[i].txt_users.list[j].client_addr == temp_user.client_addr) {
+                            if (channel_list.list[i].txt_users.list[j].client_addr.sin_addr == temp_user.client_addr.sin_addr) {
                                 err = 1;
                                 //send error
                                 char errtxt[SAY_MAX];
@@ -350,7 +350,7 @@ int main(UNUSED int argc, char *argv[]) {
                 }
                 if (!ch_exist) {
                     for (i = 0; i < user_list.size; i++) {
-                        if (user_list.list[i].client_addr == client_addr) {
+                        if (user_list.list[i].client_addr.sin_addr == client_addr.sin_addr) {
                             for (j = 0; user_list.list[i].subsize; j++) {
                                 if (strcmp(user_list.list[i].sub_channels[j], channel.txt_channel) == 0) {
                                     err = 1;
@@ -394,12 +394,12 @@ int main(UNUSED int argc, char *argv[]) {
                 ch_exist = 0;
                 strcpy(channel.txt_channel, req_leave->req_channel);
                 for (i = 0; i < user_list.size; i++) {
-                    if (user_list.list[i].client_addr == client_addr) {
+                    if (user_list.list[i].client_addr.sin_addr == client_addr.sin_addr) {
                         for (j = 0; j < channel_list.size; j++) {
                             if (strcmp(channel_list.list[j].txt_channel, channel.txt_channel) == 0) {
                                 ch_exist = 1;
                                 for (k = 0; k < channel_list.list[j].txt_users.size; k++) {
-                                    if (channel_list.list[j].txt_users.list[k].client_addr == client_addr) {
+                                    if (channel_list.list[j].txt_users.list[k].client_addr.sin_addr == client_addr.sin_addr) {
                                         channel_list.list[j].txt_users.list[k] = NULL;
                                         channel_list.list[j].user_size--;
                                         break;
