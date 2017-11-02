@@ -239,7 +239,9 @@ int main(UNUSED int argc, char *argv[]) {
         nread = recvfrom(sockid, (void *)&reqs, sizeof(void *), 0, (struct sockaddr *) &client_addr, &len);
         if (nread > 0) {
             printf("Reveived\n");
+            printf("%d\n", reqs->req_type);
             struct request *req = (struct request *)&reqs;
+            printf("%d\n", req->req_type);
             if (req->req_type == REQ_LOGIN) {
                 printf("Login\n");
                 struct request_login *req_login = (struct request_login *)&req;
