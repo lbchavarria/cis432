@@ -152,14 +152,14 @@ int main(UNUSED int argc, char *argv[]) {
                 text[--i] = '\0';
             }
             else if (buff == '\n') {
-                printf("%c", buff)
+                printf("%c", buff);
                 break;
             }
             else {
                 if (i == SAY_MAX) {
                     break;
                 }
-                printf("%c", buff)
+                printf("%c", buff);
                 text[i] = buff;
                 i++;
             }
