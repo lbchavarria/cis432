@@ -321,7 +321,7 @@ int main(UNUSED int argc, char *argv[]) {
                                 }
                             }
                         }
-                        destroy_user(user_list.list[i]);
+                        //destroy_user(user_list.list[i]);
                         user_list.list[i].isempty = 1;
                         destroy_user(temp_user);
                         temp_user.isempty = 1;

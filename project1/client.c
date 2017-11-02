@@ -149,7 +149,7 @@ int main(UNUSED int argc, char *argv[]) {
         printf("> ");
         while (1) {
             read(0, &buff, 1);
-            if (buff == '\b' && i > 1) {
+            if (buff == '\b' && i >= 1) {
                 text[--i] = '\0';
             }
             else if (buff == '\n') {
