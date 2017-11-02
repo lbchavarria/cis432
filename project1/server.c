@@ -240,6 +240,7 @@ int main(UNUSED int argc, char *argv[]) {
         if (nread > 0) {
             printf("Reveived\n");
             if (req.req_type == REQ_LOGIN) {
+                printf("Login\n");
                 struct request_login *req_login = (struct request_login *)&req;
                 strcpy(user.username, req_login->req_username);
                 strcpy(user.current_channel, "Common");
@@ -283,6 +284,7 @@ int main(UNUSED int argc, char *argv[]) {
                 }
             }
             else if (req.req_type == REQ_LOGOUT) {
+                printf("Logout\n");
                 //struct request_logout *req_logout = (struct request_logout *)&req;
                 for (i = 0; i < user_list.size; i++) {
                     if (user_list.list[i].client_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
@@ -309,6 +311,7 @@ int main(UNUSED int argc, char *argv[]) {
                 }
             }
             else if (req.req_type == REQ_JOIN) {
+                printf("Join\n");
                 struct request_join *req_join = (struct request_join *)&req;
                 ch_exist = 0;
                 strcpy(channel.txt_channel, req_join->req_channel);
@@ -394,6 +397,7 @@ int main(UNUSED int argc, char *argv[]) {
                 destroy_user(temp_user);
             }
             else if (req.req_type == REQ_LEAVE) {
+                printf("Leave\n");
                 struct request_leave *req_leave = (struct request_leave *)&req;
                 ch_exist = 0;
                 strcpy(channel.txt_channel, req_leave->req_channel);
@@ -448,24 +452,27 @@ int main(UNUSED int argc, char *argv[]) {
                 }
             }
             else if (req.req_type == REQ_SAY) {
-                
+                printf("Say\n");
                 txt.txt_type = TXT_SAY;
                 //retcode =
                 text_handler(txt);
                 
             }
             else if (req.req_type == REQ_LIST) {
-                
+                printf("List\n");
                 txt.txt_type = TXT_LIST;
                 //retcode =
                 text_handler(txt);
             }
             else if (req.req_type == REQ_WHO) {
-                
+                printf("Who\n");
                 txt.txt_type = TXT_WHO;
                 //retcode =
                 text_handler(txt);
             }
+        }
+        if (nusers == 0) {
+            break;
         }
     }
 
