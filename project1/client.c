@@ -176,7 +176,7 @@ int main(UNUSED int argc, char *argv[]) {
             printf("Logout\n");
             struct request_logout req_logout;// = (struct request_logout *)&req;
             req_logout.req_type = REQ_LOGOUT;
-            retcode = sendto(sockid, (struct request *)&req_logout, sizeof(request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+            retcode = sendto(sockid, (struct request *)&req_logout, sizeof(struct request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
         }
         else if (req.req_type == REQ_JOIN) {
             printf("Join\n");
