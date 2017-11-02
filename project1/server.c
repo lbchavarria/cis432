@@ -95,8 +95,8 @@ void text_handler(struct text txt) {
         strcpy(txt_say.txt_text, req_say->req_text);
         for (i = 0; i < user_list.size; i++) {
             if (user_list.list[i].client_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
-                if (strcmp(user_list.list[i].current_channel, txt_say->txt_channel) != 0) {
-                    strcpy(user_list.list[i].current_channel, txt_say->txt_channel);
+                if (strcmp(user_list.list[i].current_channel, txt_say.txt_channel) != 0) {
+                    strcpy(user_list.list[i].current_channel, txt_say.txt_channel);
                 }
                 strcpy(txt_say.txt_username, user_list.list[i].username);
                 break;
@@ -106,7 +106,7 @@ void text_handler(struct text txt) {
             if (strcmp(channel_list.list[i].txt_channel, txt_say.txt_channel) == 0) {
                 ch_exist = 1;
                 for (j = 0; j < channel_list.list[i].txt_users.size; j++) {
-                    retcode = sendto(sockid, (struct text *)&txt_say, sizeof(struct say), 0, (struct sockaddr *) &channel_list.list[i].txt_users.list[j].client_addr, sizeof(channel_list.list[i].txt_users.list[j].client_addr));
+                    retcode = sendto(sockid, (struct text *)&txt_say, sizeof(struct text), 0, (struct sockaddr *) &channel_list.list[i].txt_users.list[j].client_addr, sizeof(channel_list.list[i].txt_users.list[j].client_addr));
                     if (retcode <= -1) {
                         perror("Server: sendto failed to user");
                     }
