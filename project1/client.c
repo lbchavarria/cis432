@@ -14,7 +14,7 @@
 #define UNUSED __attribute__ ((unused))
 
 int sockid;
-char i_channel[CHANNEL_MAX], text[SAY_MAX], temp_channel[CHANNEL_MAX] buff;
+char i_channel[CHANNEL_MAX], text[SAY_MAX], temp_channel[CHANNEL_MAX], buff;
 struct sockaddr_in server_addr;
 
 
