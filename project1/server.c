@@ -199,7 +199,7 @@ int main(UNUSED int argc, char *argv[]) {
     }
 
     int nusers = 0;
-    struct request req;
+    //struct request req;
     //struct channel_info current_channel;
     //struct user_info user_i;
     struct text txt;
