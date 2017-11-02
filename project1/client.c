@@ -14,7 +14,7 @@
 #define UNUSED __attribute__ ((unused))
 
 int sockid;
-char i_channel[CHANNEL_MAX], text[SAY_MAX], buff;
+char i_channel[CHANNEL_MAX], text[SAY_MAX], temp_channel[CHANNEL_MAX] buff;
 struct sockaddr_in server_addr;
 
 
@@ -40,7 +40,7 @@ request_t exception_handler(char text[]) {
     }
     if (strncmp(text, "/who", strlen("/who")) == 0) {
         for (i = 0; i < (strlen(text) - strlen("/who ")); i++) {
-            i_channel[i] = text[strlen("/who ")+i];
+            temp_channel[i] = text[strlen("/who ")+i];
         }
         return REQ_WHO;
     }
@@ -130,6 +130,7 @@ int main(UNUSED int argc, char *argv[]) {
     struct request_login req_login;// = (struct request_login *)&req;
     strcpy(req_login.req_username, argv[3]);
     req_login.req_type = REQ_LOGIN;
+    strcpy(i_channel, "Common");
     retcode = sendto(sockid, (struct request *)&req_login, sizeof(struct request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
     if (retcode <= -1) {
         perror("Client: sendto failed");
