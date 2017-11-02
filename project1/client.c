@@ -114,7 +114,7 @@ int main(UNUSED int argc, char *argv[]) {
     }
     bcopy((char *)hp->h_addr, (char *)&server_addr.sin_addr, hp->h_length);
     server_addr.sin_port = htons(atoi(argv[2]));
-    socketlen_t *len = (socketlen_t *)&sizeof(struct sockaddr_in);
+    unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
      
     struct request req;
     struct text txt;
@@ -194,7 +194,7 @@ int main(UNUSED int argc, char *argv[]) {
             perror("Client: sendto failed");
             //return -1;
         }
-        nread = recvfrom(sockid, (void *)&txt, sizeof(void *), 0, (struct sockaddr *) &from, len);
+        nread = recvfrom(sockid, (void *)&txt, sizeof(void *), 0, (struct sockaddr *) &from, &len);
         if (nread > 0) {
             txt_handler((struct text *)&txt);
         }
