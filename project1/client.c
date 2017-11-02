@@ -91,7 +91,7 @@ int main(UNUSED int argc, char *argv[]) {
         return -1;
     }
     
-    
+    /*
     bzero((char *) &my_addr, sizeof(my_addr));
     my_addr.sin_family = AF_INET;
     my_addr.sin_addr.s_addr = htonl(INADDR_ANY);
