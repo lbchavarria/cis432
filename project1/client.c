@@ -145,18 +145,21 @@ int main(UNUSED int argc, char *argv[]) {
         i = 0;
         printf("Start read\n");
         while (1) {
+            printf("> ");
             read(0, &buff, 1);
             printf("Read\n");
             if (buff == '\b' && i > 1) {
                 text[--i] = '\0';
             }
-            else if (buff == '\r') {
+            else if (buff == '\n') {
+                printf("%c", buff)
                 break;
             }
             else {
                 if (i == SAY_MAX) {
                     break;
                 }
+                printf("%c", buff)
                 text[i] = buff;
                 i++;
             }
