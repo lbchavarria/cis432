@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -39,7 +40,7 @@ int sockid;
 struct sockaddr_in client_addr;
 ChannelList channel_list;
 UserList user_list;
-struct request req
+struct request req;
 
 void destroy_user(User user) {
     int i;
