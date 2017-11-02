@@ -199,7 +199,7 @@ int main(UNUSED int argc, char *argv[]) {
     }
 
     int nusers = 0;
-    struct request reqs;
+    struct request req;
     //struct channel_info current_channel;
     //struct user_info user_i;
     struct text txt;
@@ -236,10 +236,10 @@ int main(UNUSED int argc, char *argv[]) {
 
     while(1) {
         printf("Receive\n");
-        nread = recvfrom(sockid, (void *)&reqs, sizeof(void *), 0, (struct sockaddr *) &client_addr, &len);
+        nread = recvfrom(sockid, (void *)&req, sizeof(void *), 0, (struct sockaddr *) &client_addr, &len);
         if (nread > 0) {
             printf("Reveived\n");
-            printf("%d\n", reqs.req_type);
+            printf("%d\n", req.req_type);
             //struct request *req = (struct request *)&reqs;
             //printf("%d\n", req->req_type);
             if (req.req_type == REQ_LOGIN) {
