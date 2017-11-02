@@ -166,6 +166,7 @@ int main(UNUSED int argc, char *argv[]) {
         printf("Check exceptions\n");
         req.req_type = exception_handler(text);
         printf("Exception handled\n");
+        printf("%d", req.req_type);
         if (req.req_type == -1) {
             printf("Switch\n");
             continue;
