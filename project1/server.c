@@ -236,7 +236,7 @@ int main(UNUSED int argc, char *argv[]) {
 
     while(1) {
         printf("Receive\n");
-        nread = recvfrom(sockid, (void *)&req, sizeof(void *), 0, (struct sockaddr *) &client_addr, &len);
+        nread = recvfrom(sockid, &req, sizeof(struct request), 0, (struct sockaddr *) &client_addr, &len);
         if (nread > 0) {
             printf("Reveived\n");
             printf("%d\n", req.req_type);

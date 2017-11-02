@@ -129,7 +129,7 @@ int main(UNUSED int argc, char *argv[]) {
     req.req_type = REQ_LOGIN;
     struct request_login *req_login = (struct request_login *)&req;
     strcpy(req_login->req_username, argv[3]);
-    retcode = sendto(sockid, (void *)&req_login, sizeof(void *), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+    retcode = sendto(sockid, &req_login, sizeof(req_login), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
     if (retcode <= -1) {
         perror("Client: sendto failed");
         return -1;
