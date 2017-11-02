@@ -74,7 +74,7 @@ void error_handler(char txt[]) {
     int retcode;
     struct text_error txt_error;
     strcpy(txt_error.txt_error, txt);
-    retcode = sendto(sockid, (struct text *)&txt_error, sizeof(struct text), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
+    retcode = sendto(sockid, (void *)&txt_error, sizeof(void *), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
     if (retcode <= -1) {
         printf("Server: sendto failed: %d\n", errno);
     }
@@ -100,7 +100,7 @@ void text_handler(struct text txt) {
             if (strcmp(channel_list.list[i]->txt_channel, txt_say.txt_channel) == 0) {
                 ch_exist = 1;
                 for (j = 0; j < channel_list.list[i]->txt_users.size; j++) {
-                    retcode = sendto(sockid, (struct text *)&txt_say, sizeof(struct text), 0, (struct sockaddr *) &channel_list.list[i]->txt_users.list[j]->client_addr, sizeof(channel_list.list[i]->txt_users.list[j]->client_addr));
+                    retcode = sendto(sockid, (void *)&txt_say, sizeof(void *), 0, (struct sockaddr *) &channel_list.list[i]->txt_users.list[j]->client_addr, sizeof(channel_list.list[i]->txt_users.list[j]->client_addr));
                     if (retcode <= -1) {
                         printf("Server: sendto failed to user %s: %d\n", channel_list.list[i]->txt_users.list[j]->username, errno);
                     }
@@ -128,7 +128,7 @@ void text_handler(struct text txt) {
             strcpy(channels[i].ch_channel, channel_list.list[i]->txt_channel);
         }
         txt_list.txt_channels = channels;
-        retcode = sendto(sockid, (struct text *)&txt_list, sizeof(struct text), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
+        retcode = sendto(sockid, (void *)&txt_list, sizeof(void *), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
         if (retcode <= -1) {
             printf("Server: sendto failed: %d\n", errno);
         }
@@ -165,7 +165,7 @@ void text_handler(struct text txt) {
             strcpy(errtxt, "Channel does not exist\n");
             error_handler(errtxt);
         }
-        retcode = sendto(sockid, (struct text *)&txt_list, sizeof(struct text), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
+        retcode = sendto(sockid, (void *)&txt_list, sizeof(void *), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
         if (retcode <= -1) {
             printf("Server: sendto failed: %d\n", errno);
         }
@@ -175,7 +175,7 @@ void text_handler(struct text txt) {
 }
 
 int main(int argc, char *argv[]) {
-    int nread, addrlen, i, j, k, l, m, ch_exist;
+    int nread, i, j, k, l, m, ch_exist;
     int err = 0;
     struct sockaddr_in my_addr;
 
@@ -229,7 +229,7 @@ int main(int argc, char *argv[]) {
     }
 
     while(1) {
-        nread = recvfrom(sockid, req, sizeof(struct request), 0, (struct sockaddr *) &client_addr, &addrlen);
+        nread = recvfrom(sockid, req, sizeof(struct request), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
         if (nread > 0) {
             if (req.req_type == REQ_LOGIN) {
                 struct request_login *req_login = (struct request_login *)&req;
@@ -468,6 +468,6 @@ int main(int argc, char *argv[]) {
     destroy_channel(channel);
     destroy_user_list(user_list);
     destroy_user(user);
-    close(sockid);
+    shutdown(sockid);
     return 0;
 }
