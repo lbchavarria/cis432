@@ -215,6 +215,9 @@ int main(UNUSED int argc, char *argv[]) {
             break;
         }
         printf("Receive\n");
+        if (req.req_type == REQ_JOIN || req.req_type == REQ_LEAVE) {
+            continue;
+        }
         nread = recvfrom(sockid, (void *)&txt, sizeof(void *), 0, (struct sockaddr *) &from, &len);
         if (nread > 0) {
             printf("Text handle\n");

@@ -235,6 +235,7 @@ int main(UNUSED int argc, char *argv[]) {
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
 
     while(1) {
+        printf("Receive\n");
         nread = recvfrom(sockid, (void *)&req, sizeof(void *), 0, (struct sockaddr *) &client_addr, &len);
         if (nread > 0) {
             if (req.req_type == REQ_LOGIN) {
