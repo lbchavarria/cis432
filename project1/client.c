@@ -144,10 +144,9 @@ int main(UNUSED int argc, char *argv[]) {
     while (1) {
         i = 0;
         printf("Start read\n");
+        printf("> ");
         while (1) {
-            printf("> ");
             read(0, &buff, 1);
-            printf("Read\n");
             if (buff == '\b' && i > 1) {
                 text[--i] = '\0';
             }
