@@ -84,13 +84,14 @@ int main(UNUSED int argc, char *argv[]) {
     struct sockaddr_in from;//my_addr;
     struct hostent *hp;
 
+    printf("Set up socket\n");
     sockid = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockid < 0) {
         perror("Client: socket failed");
         return -1;
     }
     
-    /*
+    
     bzero((char *) &my_addr, sizeof(my_addr));
     my_addr.sin_family = AF_INET;
     //my_addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -99,13 +100,13 @@ int main(UNUSED int argc, char *argv[]) {
         printf("Client: bind fail: %d\n", errno);
         return -1;
     }
-
+    /*
     bzero((char *) &server_addr, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = gethostbyname(argv[1]);
     server_addr.sin_port = htons(atoi(argv[2]));
     */
-    
+    printf("Set up server\n");
     server_addr.sin_family = AF_INET;
     hp = gethostbyname(argv[1]);
     if (hp == 0) {
@@ -119,6 +120,7 @@ int main(UNUSED int argc, char *argv[]) {
     struct request req;
     struct text txt;
 
+    printf("Login\n");
     if (strlen(argv[3]) > USERNAME_MAX) {
         printf("Username too long. Max length is %d\n", USERNAME_MAX);
         return -1;
@@ -193,6 +195,9 @@ int main(UNUSED int argc, char *argv[]) {
         if (retcode <= -1) {
             perror("Client: sendto failed");
             //return -1;
+        }
+        if (req.req_type == REQ_LOGOUT && retcode > -1) {
+            break;
         }
         nread = recvfrom(sockid, (void *)&txt, sizeof(void *), 0, (struct sockaddr *) &from, &len);
         if (nread > 0) {
