@@ -227,10 +227,10 @@ int main(UNUSED int argc, char *argv[]) {
         if (req.req_type == REQ_JOIN || req.req_type == REQ_LEAVE) {
             continue;
         }
-        nread = recvfrom(sockid, (void *)&txt, sizeof(void *), 0, (struct sockaddr *) &from, &len);
+        nread = recvfrom(sockid, (struct text *)&txt, sizeof(struct text), 0, (struct sockaddr *) &from, &len);
         if (nread > 0) {
             printf("Text handle\n");
-            txt_handler((struct text *)&txt);
+            txt_handler(txt);
         }
     }
     
