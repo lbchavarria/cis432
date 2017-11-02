@@ -130,11 +130,11 @@ void text_handler(struct text txt) {
         struct text_list txt_list;// = (struct text_list *)&txt;
         txt_list.txt_type = TXT_LIST;
         txt_list.txt_nchannels = channel_list.size;
-        struct channel_info channels[txt_list.txt_nchannels];
+        struct channel_info i_channels[txt_list.txt_nchannels];
         for (i = 0; i < txt_list.txt_nchannels; i++) {
-            strcpy(channels[i].ch_channel, channel_list.list[i].txt_channel);
+            strcpy(i_channels[i].ch_channel, channel_list.list[i].txt_channel);
         }
-        memcpy(txt_list.txt_channels, channels, sizeof(channels));
+        memcpy(txt_list.txt_channels, i_channels, sizeof(i_channels));
         retcode = sendto(sockid, (struct text *)&txt_list, sizeof(struct text), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
         if (retcode <= -1) {
             perror("Server: sendto failed");
