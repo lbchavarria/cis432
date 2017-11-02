@@ -126,9 +126,10 @@ int main(UNUSED int argc, char *argv[]) {
         return -1;
     }
 
-    req.req_type = REQ_LOGIN;
-    struct request_login *req_login = (struct request_login *)&req;
-    strcpy(req_login->req_username, argv[3]);
+    //req.req_type = REQ_LOGIN;
+    struct request_login req_login;// = (struct request_login *)&req;
+    strcpy(req_login.req_username, argv[3]);
+    req_login.req_type = REQ_LOGIN;
     retcode = sendto(sockid, (struct request *)&req_login, sizeof(struct request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
     if (retcode <= -1) {
         perror("Client: sendto failed");
