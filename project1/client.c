@@ -9,7 +9,9 @@
 #include "duckchat.h"
 #include "raw.h"
 
+int sockid;
 char channel[CHANNEL_MAX], text[SAY_MAX], buff;
+struct sockaddr_in server_addr;
 
 int request_handler(struct request req) {
     if (req.req_type == REQ_LOGIN) {
@@ -84,9 +86,35 @@ request_t exception_handler(char text[]) {
     return REQ_SAY;
 }
 
+void txt_handler(struct text txt) {
+    int i;
+    if (txt.txt_type == TXT_SAY) {
+        struct text_say *txt_say = (struct text_say *)&txt;
+        printf("[%s][%s]: %s", txt_say->txt_channel, txt_say->txt_username, txt_say->txt_text);
+    }
+    else if (txt.txt_type == TXT_LIST) {
+        struct text_list *txt_list = (struct text_list *)&txt;
+        printf("Existing channels:\n");
+        for (i = 0; i < txt_list->txt_nchannels; i++) {
+            printf("%s\n", txt_list->txt_channels[i].ch_channel);
+        }
+    }
+    else if (txt.txt_type == TXT_WHO) {
+        struct text_who *txt_who = (struct text_who *)&txt;
+        printf("Users on channel %s:\n", txt_who->txt_channel);
+        for (i = 0; i < txt_who->txt_nusernames; i++) {
+            printf("%s\n", txt_who->txt_users[i].us_username);
+        }
+    }
+    else if (txt.txt_type == TXT_ERROR) {
+        struct text_error *txt_error = (struct text_error *)&txt;
+        printf("%s\n", txt_error->txt_error);
+    }
+}
+
 int main(int argc, char *argv[]) {
-    int sockid, retcode, i;
-    struct sockaddr_in my_addr, server_addr;
+    int retcode, nread, addrlen, i;
+    struct sockaddr_in my_addr;
 
     sockid = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockid < 0) {
@@ -109,6 +137,7 @@ int main(int argc, char *argv[]) {
     server_addr.sin_port = htons(atoi(argv[2]));
     
     struct request req;
+    struct text txt;
 
     if (strlen(argv[3]) > USERNAME_MAX) {
         printf("Username too long. Max length is %d\n", USERNAME_MAX);
@@ -153,6 +182,10 @@ int main(int argc, char *argv[]) {
         if (retcode <= -1) {
             printf("Client: sendto failed: %d\n", errno);
             //return -1;
+        }
+        nread = recvfrom(sockid, txt, sizeof(struct text), 0, (struct sockaddr *) &server_addr, &addrlen);
+        if (nread > 0) {
+            txt_handler(txt);
         }
     }
     

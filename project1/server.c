@@ -7,6 +7,40 @@
 #include <string.h>
 #include "duckchat.h"
 
+typedef struct user {
+    int subsize;
+    int nsub;
+    struct sockaddr_in client_addr;
+    char username[USERNAME_MAX];
+    char current_channel[CHANNEL_MAX];
+    char **sub_channels;//[CHANNEL_MAX];
+} User;
+
+//added
+typedef struct user_list {
+    int size;
+    User *list;
+} UserList;
+
+//added
+typedef struct channel {
+    int  user_size;
+    char txt_channel[CHANNEL_MAX];
+    UserList txt_users;
+} Channel;
+
+//added
+typedef struct channel_list {
+    int size;
+    Channel *list;
+} ChannelList;
+
+int sockid;
+struct sockaddr_in client_addr;
+ChannelList channel_list;
+UserList user_list;
+struct request req
+
 void destroy_user(User user) {
     int i;
     for (i = 0; i < user.nsub; i++) {
@@ -16,30 +50,134 @@ void destroy_user(User user) {
     //user = NULL;
 }
 
-void destroy_user_list(UserList user_list) {
+void destroy_user_list(UserList list) {
     int i;
-    for (i = 0; i < user_list.size; i++) {
-        destroy_user(user_list.list[i]);
+    for (i = 0; i < list.size; i++) {
+        destroy_user(list.list[i]);
     }
-    free(user_list.list);
+    free(list.list);
 }
 
 void destroy_channel(Channel channel) {
     destroy_user_list(channel.txt_users);
 }
 
-void destroy_channel_list(ChannelList channel_list) {
+void destroy_channel_list(ChannelList list) {
     int i;
-    for (i = 0; i < channel_list.size; i++) {
-        destroy_channel(channel_list.list[i]);
+    for (i = 0; i < list.size; i++) {
+        destroy_channel(list.list[i]);
     }
-    free(channel_list.list);
+    free(list.list);
+}
+
+void error_handler(char txt[]) {
+    int retcode;
+    struct text_error txt_error;
+    strcpy(txt_error.txt_error, txt);
+    retcode = sendto(sockid, (struct text *)&txt_error, sizeof(struct text), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
+    if (retcode <= -1) {
+        printf("Server: sendto failed: %d\n", errno);
+    }
+}
+
+void text_handler(struct text txt) {
+    int i, j, k, ch_exist, retcode;
+    if (txt.txt_type == TXT_SAY) {
+        struct request_say *req_say = (struct request_say *)&req;
+        struct text_say txt_say = (struct text_say)txt;
+        strcpy(txt_say.txt_channel, req_say->req_channel);
+        strcpy(txt_say.txt_text, req_say->req_text);
+        for (i = 0; i < user_list.size; i++) {
+            if (user_list.list[i]->client_addr == client_addr) {
+                if (strcmp(user_list.list[i]->current_channel, txt_say.txt_channel) != 0) {
+                    strcpy(user_list.list[i]->current_channel, txt_say.txt_channel);
+                }
+                strcpy(txt_say.txt_username, user_list.list[i]->username);
+                break;
+            }
+        }
+        for (i = 0; i < channel_list.size; i++) {
+            if (strcmp(channel_list.list[i]->txt_channel, txt_say.txt_channel) == 0) {
+                ch_exist = 1;
+                for (j = 0; j < channel_list.list[i]->txt_users.size; j++) {
+                    retcode = sendto(sockid, (struct text *)&txt_say, sizeof(struct text), 0, (struct sockaddr *) &channel_list.list[i]->txt_users.list[j]->client_addr, sizeof(channel_list.list[i]->txt_users.list[j]->client_addr));
+                    if (retcode <= -1) {
+                        printf("Server: sendto failed to user %s: %d\n", channel_list.list[i]->txt_users.list[j]->username, errno);
+                    }
+                }
+                break;
+            }
+            else {
+                ch_exist = 0;
+            }
+        }
+        if (!ch_exist) {
+            //send error
+            char errtxt[SAY_MAX];
+            strcpy(errtxt, "Channel does not exist\n");
+            error_handler(errtxt);
+        }
+        return;
+    }
+    else if (txt.txt_type == TXT_LIST) {
+        struct request_list *req_list = (struct request_list *)&req;
+        struct text_list txt_list = (struct text_list)txt;
+        txt_list.txt_nchannels = channel_list.size;
+        struct channel_info channels[txt_list.txt_nchannels];
+        for (i = 0; i < txt_list.txt_nchannels; i++) {
+            strcpy(channels[i].ch_channel, channel_list.list[i]->txt_channel);
+        }
+        txt_list.txt_channels = channels;
+        retcode = sendto(sockid, (struct text *)&txt_list, sizeof(struct text), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
+        if (retcode <= -1) {
+            printf("Server: sendto failed: %d\n", errno);
+        }
+        return;
+    }
+    else if (txt.txt_type == TXT_WHO) {
+        k = 0;
+        struct request_who *req_who = (struct request_who *)&req;
+        struct text_who txt_who = (struct text_who)txt;
+        strcpy(txt_who.txt_channel, req_who->req_channel);
+        for (i = 0; i < channel_list.size; i++) {
+            if (strcmp(txt_who.txt_channel, channel_list.list[i]->txt_channel) == 0) {
+                ch_exist = 1;
+                txt_who.txt_nusernames = channel_list.list[i]->user_size;
+                struct user_info users[txt_who.txt_nusernames];
+                for (j = 0; j < channel_list.list[i]->txt_users.size; j++) {
+                    if (channel_list.list[i]->txt_users.list[j] != NULL && k < txt_who.txt_nusernames) {
+                        strcpy(users[k++], channel_list.list[i]->txt_users.list[j]->username);
+                    }
+                    if (k >= txt_who.txt_nusernames) {
+                        break;
+                    }
+                }
+                txt_who.txt_users = users;
+                break;
+            }
+            else {
+                ch_exist = 0;
+            }
+        }
+        if (!ch_exist) {
+            //send error
+            char errtxt[SAY_MAX];
+            strcpy(errtxt, "Channel does not exist\n");
+            error_handler(errtxt);
+        }
+        retcode = sendto(sockid, (struct text *)&txt_list, sizeof(struct text), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
+        if (retcode <= -1) {
+            printf("Server: sendto failed: %d\n", errno);
+        }
+        return;
+    }
+    
 }
 
 int main(int argc, char *argv[]) {
-    int sockid, nread, addrlen, i, j, k, l, m, ch_exist;
+    int nread, addrlen, i, j, k, l, m, ch_exist;
     int err = 0;
-    struct sockaddr_in my_addr, client_addr;
+    struct sockaddr_in my_addr;
 
     sockid = socket(AF_INET, SOCK_DGRAM, 0);
     if (sockid < 0) {
@@ -57,13 +195,13 @@ int main(int argc, char *argv[]) {
     }
 
     int nusers = 0;
-    struct request req;
-    struct channel_info current_channel;
-    struct user_info user_i;
+    //struct request req;
+    //struct channel_info current_channel;
+    //struct user_info user_i;
     struct text txt;
-    struct text_list tlist;// = (struct text_list *)malloc(sizeof(struct text_list));
+    //struct text_list tlist;// = (struct text_list *)malloc(sizeof(struct text_list));
     //list->txt_nchannels = 1;
-    struct text_who who;// = (struct text_who *)malloc(sizeof(struct text_who));
+    //struct text_who who;// = (struct text_who *)malloc(sizeof(struct text_who));
     //who->txt_nusernames = 0;
     Channel channel;
     //channel.nchannels = 0;
@@ -73,12 +211,12 @@ int main(int argc, char *argv[]) {
     for (i = 0; i < channel.user_size; i++) {
         channel.txt_users[i] = NULL;
     }
-    ChannelList channel_list;
+    
     channel_list.size = 0;
     channel_list.list = (Channel *)malloc(sizeof(Channel));
-    UserList user_list;
+    
     user_list.size = 1;
-    user_list.list = (User *)malloc(sizeof(User)*size);
+    user_list.list = (User *)malloc(sizeof(User)*user_list.size);
     for (i = 0; i < user_list.size; i++) {
         user_list.list[i] = NULL;
     }
@@ -179,6 +317,9 @@ int main(int argc, char *argv[]) {
                             if (channel_list.list[i]->txt_users.list[j]->client_addr == temp_user.client_addr) {
                                 err = 1;
                                 //send error
+                                char errtxt[SAY_MAX];
+                                strcpy(errtxt, "User already subscribed to channel\n");
+                                error_handler(errtxt);
                                 break;
                             }
                         }
@@ -210,6 +351,9 @@ int main(int argc, char *argv[]) {
                                 if (strcmp(user_list.list[i]->sub_channels[j], channel.txt_channel) == 0) {
                                     err = 1;
                                     //send error
+                                    char errtxt[SAY_MAX];
+                                    strcpy(errtxt, "User already subscribed to channel\n");
+                                    error_handler(errtxt);
                                     break;
                                 }
                             }
@@ -265,6 +409,9 @@ int main(int argc, char *argv[]) {
                         }
                         if (!ch_exist) {
                             //send error
+                            char errtxt[SAY_MAX];
+                            strcpy(errtxt, "Channel does not exist\n");
+                            error_handler(errtxt);
                             break;
                         }
                         for (j = 0; j < user_list.list[i]->subsize; j++) {
@@ -280,6 +427,9 @@ int main(int argc, char *argv[]) {
                         }
                         if (!ch_exist) {
                             //send error
+                            char errtxt[SAY_MAX];
+                            strcpy(errtxt, "Channel does not exist\n");
+                            error_handler(errtxt);
                             break;
                         }
                         if (strcmp(user_list.list[i]->current_channel, channel.txt_channel) == 0) {
@@ -290,16 +440,23 @@ int main(int argc, char *argv[]) {
                 }
             }
             else if (req.req_type == REQ_SAY) {
-                struct request_say *req_say = (struct request_say *)&req;
+                
                 txt.text_type = TXT_SAY;
+                //retcode =
+                text_handler(txt);
+                
             }
             else if (req.req_type == REQ_LIST) {
-                struct request_list *req_list = (struct request_list *)&req;
+                
                 txt.text_type = TXT_LIST;
+                //retcode =
+                text_handler(txt);
             }
             else if (req.req_type == REQ_WHO) {
-                struct request_who *req_who = (struct request_who *)&req;
+                
                 txt.text_type = TXT_WHO;
+                //retcode =
+                text_handler(txt);
             }
         }
     }
