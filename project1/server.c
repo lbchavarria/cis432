@@ -48,18 +48,27 @@ struct request req;
 void destroy_user(User user) {
     int i;
     for (i = 0; i < user.nsub; i++) {
-        free(user.sub_channels[i]);
+        if (user.sub_channels[i] != NULL) {
+            free(user.sub_channels[i]);
+            user.sub_channels[i] = NULL;
+        }
     }
-    free(user.sub_channels);
+    if (user.sub_channels != NULL) {
+        free(user.sub_channels);
+        user.sub_channels = NULL;
+    }
     //user = NULL;
 }
 
 void destroy_user_list(UserList list) {
     int i;
     for (i = 0; i < list.size; i++) {
-        destroy_user(list.list[i]);
+            destroy_user(list.list[i]);
     }
-    free(list.list);
+    if (list.list != NULL) {
+        free(list.list);
+        list.list = NULL;
+    }
 }
 
 void destroy_channel(Channel channel) {
@@ -71,7 +80,10 @@ void destroy_channel_list(ChannelList list) {
     for (i = 0; i < list.size; i++) {
         destroy_channel(list.list[i]);
     }
-    free(list.list);
+    if (list.list != NULL) {
+        free(list.list);
+        list.list = NULL;
+    }
 }
 
 void error_handler(char *txt) {
