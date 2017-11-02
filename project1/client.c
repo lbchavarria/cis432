@@ -167,7 +167,7 @@ int main(UNUSED int argc, char *argv[]) {
         req.req_type = exception_handler(text);
         printf("Exception handled\n");
         if (req.req_type == -1) {
-            prinf("Switch\n");
+            printf("Switch\n");
             continue;
         }
         else if (req.req_type == REQ_LOGOUT) {
