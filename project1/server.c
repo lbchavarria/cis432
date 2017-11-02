@@ -78,7 +78,8 @@ void error_handler(char txt[]) {
     int retcode;
     struct text_error txt_error;
     strcpy(txt_error.txt_error, txt);
-    retcode = sendto(sockid, (void *)&txt_error, sizeof(void *), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
+    txt_error.txt_type = TXT_ERROR;
+    retcode = sendto(sockid, (struct text *)&txt_error, sizeof(struct text), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
     if (retcode <= -1) {
         perror("Server: sendto failed");
     }
@@ -88,23 +89,24 @@ void text_handler(struct text txt) {
     int i, j, k, ch_exist, retcode;
     if (txt.txt_type == TXT_SAY) {
         struct request_say *req_say = (struct request_say *)&req;
-        struct text_say *txt_say = (struct text_say *)&txt;
-        strcpy(txt_say->txt_channel, req_say->req_channel);
-        strcpy(txt_say->txt_text, req_say->req_text);
+        struct text_say txt_say;// = (struct text_say *)&txt;
+        txt_say.txt_type = TXT_SAY;
+        strcpy(txt_say.txt_channel, req_say->req_channel);
+        strcpy(txt_say.txt_text, req_say->req_text);
         for (i = 0; i < user_list.size; i++) {
             if (user_list.list[i].client_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                 if (strcmp(user_list.list[i].current_channel, txt_say->txt_channel) != 0) {
                     strcpy(user_list.list[i].current_channel, txt_say->txt_channel);
                 }
-                strcpy(txt_say->txt_username, user_list.list[i].username);
+                strcpy(txt_say.txt_username, user_list.list[i].username);
                 break;
             }
         }
         for (i = 0; i < channel_list.size; i++) {
-            if (strcmp(channel_list.list[i].txt_channel, txt_say->txt_channel) == 0) {
+            if (strcmp(channel_list.list[i].txt_channel, txt_say.txt_channel) == 0) {
                 ch_exist = 1;
                 for (j = 0; j < channel_list.list[i].txt_users.size; j++) {
-                    retcode = sendto(sockid, (void *)&txt_say, sizeof(void *), 0, (struct sockaddr *) &channel_list.list[i].txt_users.list[j].client_addr, sizeof(channel_list.list[i].txt_users.list[j].client_addr));
+                    retcode = sendto(sockid, (struct text *)&txt_say, sizeof(struct say), 0, (struct sockaddr *) &channel_list.list[i].txt_users.list[j].client_addr, sizeof(channel_list.list[i].txt_users.list[j].client_addr));
                     if (retcode <= -1) {
                         perror("Server: sendto failed to user");
                     }
@@ -125,14 +127,15 @@ void text_handler(struct text txt) {
     }
     else if (txt.txt_type == TXT_LIST) {
         //struct request_list *req_list = (struct request_list *)&req;
-        struct text_list *txt_list = (struct text_list *)&txt;
-        txt_list->txt_nchannels = channel_list.size;
-        struct channel_info channels[txt_list->txt_nchannels];
-        for (i = 0; i < txt_list->txt_nchannels; i++) {
+        struct text_list txt_list;// = (struct text_list *)&txt;
+        txt_list.txt_type = TXT_LIST;
+        txt_list.txt_nchannels = channel_list.size;
+        struct channel_info channels[txt_list.txt_nchannels];
+        for (i = 0; i < txt_list.txt_nchannels; i++) {
             strcpy(channels[i].ch_channel, channel_list.list[i].txt_channel);
         }
-        memcpy(txt_list->txt_channels, channels, sizeof(channels));
-        retcode = sendto(sockid, (void *)&txt_list, sizeof(void *), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
+        memcpy(txt_list.txt_channels, channels, sizeof(channels));
+        retcode = sendto(sockid, (struct text *)&txt_list, sizeof(struct text), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
         if (retcode <= -1) {
             perror("Server: sendto failed");
         }
@@ -141,22 +144,23 @@ void text_handler(struct text txt) {
     else if (txt.txt_type == TXT_WHO) {
         k = 0;
         struct request_who *req_who = (struct request_who *)&req;
-        struct text_who *txt_who = (struct text_who *)&txt;
-        strcpy(txt_who->txt_channel, req_who->req_channel);
+        struct text_who txt_who;// = (struct text_who *)&txt;
+        txt_who.txt_type = TXT_WHO;
+        strcpy(txt_who.txt_channel, req_who->req_channel);
         for (i = 0; i < channel_list.size; i++) {
-            if (strcmp(txt_who->txt_channel, channel_list.list[i].txt_channel) == 0) {
+            if (strcmp(txt_who.txt_channel, channel_list.list[i].txt_channel) == 0) {
                 ch_exist = 1;
-                txt_who->txt_nusernames = channel_list.list[i].user_size;
-                struct user_info users[txt_who->txt_nusernames];
+                txt_who.txt_nusernames = channel_list.list[i].user_size;
+                struct user_info users[txt_who.txt_nusernames];
                 for (j = 0; j < channel_list.list[i].txt_users.size; j++) {
-                    if (!channel_list.list[i].txt_users.list[j].isempty && k < txt_who->txt_nusernames) {
+                    if (!channel_list.list[i].txt_users.list[j].isempty && k < txt_who.txt_nusernames) {
                         strcpy(users[k++].us_username, channel_list.list[i].txt_users.list[j].username);
                     }
-                    if (k >= txt_who->txt_nusernames) {
+                    if (k >= txt_who.txt_nusernames) {
                         break;
                     }
                 }
-                memcpy(txt_who->txt_users, users, sizeof(users));
+                memcpy(txt_who.txt_users, users, sizeof(users));
                 break;
             }
             else {
@@ -169,7 +173,7 @@ void text_handler(struct text txt) {
             strcpy(errtxt, "Channel does not exist\n");
             error_handler(errtxt);
         }
-        retcode = sendto(sockid, (void *)&txt_who, sizeof(void *), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
+        retcode = sendto(sockid, (struct text *)&txt_who, sizeof(struct text), 0, (struct sockaddr *) &client_addr, sizeof(client_addr));
         if (retcode <= -1) {
             perror("Server: sendto failed");
         }

@@ -174,38 +174,44 @@ int main(UNUSED int argc, char *argv[]) {
         }
         else if (req.req_type == REQ_LOGOUT) {
             printf("Logout\n");
-            struct request_logout *req_logout = (struct request_logout *)&req;
-            retcode = sendto(sockid, (void *)&req_logout, sizeof(void *), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+            struct request_logout req_logout;// = (struct request_logout *)&req;
+            req_logout.req_type = REQ_LOGOUT;
+            retcode = sendto(sockid, (struct request *)&req_logout, sizeof(request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
         }
         else if (req.req_type == REQ_JOIN) {
             printf("Join\n");
-            struct request_join *req_join = (struct request_join *)&req;
-            strcpy(req_join->req_channel, channel);
-            retcode = sendto(sockid, (void *)&req_join, sizeof(void *), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+            struct request_join req_join;// = (struct request_join *)&req;
+            strcpy(req_join.req_channel, channel);
+            req_join.req_type = REQ_JOIN;
+            retcode = sendto(sockid, (struct request *)&req_join, sizeof(struct request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
         }
         else if (req.req_type == REQ_LEAVE) {
             printf("Leave\n");
-            struct request_leave *req_leave = (struct request_leave *)&req;
-            strcpy(req_leave->req_channel, channel);
-            retcode = sendto(sockid, (void *)&req_leave, sizeof(void *), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+            struct request_leave req_leave;//= (struct request_leave *)&req;
+            strcpy(req_leave.req_channel, channel);
+            req_leave.req_type = REQ_LEAVE;
+            retcode = sendto(sockid, (struct request *)&req_leave, sizeof(struct request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
         }
         else if (req.req_type == REQ_SAY) {
             printf("Say\n");
-            struct request_say *req_say = (struct request_say *)&req;
-            strcpy(req_say->req_channel, channel);
-            strcpy(req_say->req_text, text);
-            retcode = sendto(sockid, (void *)&req_say, sizeof(void *), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+            struct request_say req_say;// = (struct request_say *)&req;
+            strcpy(req_say.req_channel, channel);
+            strcpy(req_say.req_text, text);
+            req_say.req_type = REQ_SAY;
+            retcode = sendto(sockid, (struct request *)&req_say, sizeof(struct request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
         }
         else if (req.req_type == REQ_LIST) {
             printf("List\n");
-            struct request_list *req_list = (struct request_list *)&req;
-            retcode = sendto(sockid, (void *)&req_list, sizeof(void *), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+            struct request_list req_list;// = (struct request_list *)&req;
+            req_list.req_type = REQ_LIST;
+            retcode = sendto(sockid, (struct request *)&req_list, sizeof(struct request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
         }
         else if (req.req_type == REQ_WHO) {
             printf("Who\n");
-            struct request_who *req_who = (struct request_who *)&req;
-            strcpy(req_who->req_channel, channel);
-            retcode = sendto(sockid, (void *)&req_who, sizeof(void *), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+            struct request_who req_who;// = (struct request_who *)&req;
+            strcpy(req_who.req_channel, channel);
+            req_who.req_type = REQ_WHO;
+            retcode = sendto(sockid, (struct request *)&req_who, sizeof(struct request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
         }
         //retcode = request_handler(req);
         if (retcode <= -1) {
