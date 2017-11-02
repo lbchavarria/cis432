@@ -468,6 +468,6 @@ int main(int argc, char *argv[]) {
     destroy_channel(channel);
     destroy_user_list(user_list);
     destroy_user(user);
-    shutdown(sockid);
+    shutdown(sockid, 2);
     return 0;
 }

@@ -109,8 +109,8 @@ int main(int argc, char *argv[]) {
     }
 
     req.req_type = REQ_LOGIN;
-    struct request_login req_login = (struct request_login)req;
-    strcpy(req_login.req_username, argv[3]);
+    struct request_login *req_login = (struct request_login *)&req;
+    strcpy(req_login->req_username, argv[3]);
     retcode = sendto(sockid, (void *)&req_login, sizeof(void *), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
     if (retcode <= -1) {
         printf("Client: sendto failed: %d\n", errno);
@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
         while (1) {
             read(0, &buff, 1);
             if (buff == '\b' && i > 1) {
-                text[--i] = "";
+                text[--i] = '\0';
             }
             else if (buff == '\r') {
                 break;
@@ -145,32 +145,32 @@ int main(int argc, char *argv[]) {
             continue;
         }
         else if (req.req_type == REQ_LOGOUT) {
-            struct request_logout req_logout = (struct request_logout)req;
+            struct request_logout *req_logout = (struct request_logout *)&req;
             retcode = sendto(sockid, (void *)&req_logout, sizeof(void *), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
         }
         else if (req.req_type == REQ_JOIN) {
-            struct request_join req_join = (struct request_join)req;
-            strcpy(req_join.req_channel, channel);
+            struct request_join *req_join = (struct request_join *)&req;
+            strcpy(req_join->req_channel, channel);
             retcode = sendto(sockid, (void *)&req_join, sizeof(void *), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
         }
         else if (req.req_type == REQ_LEAVE) {
-            struct request_leave req_leave = (struct request_leave)req;
-            strcpy(req_leave.req_channel, channel);
+            struct request_leave *req_leave = (struct request_leave *)&req;
+            strcpy(req_leave->req_channel, channel);
             retcode = sendto(sockid, (void *)&req_leave, sizeof(void *), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
         }
         else if (req.req_type == REQ_SAY) {
-            struct request_say req_say = (struct request_say)req;
-            strcpy(req_say.req_channel, channel);
-            strcpy(req_say.req_text, text);
+            struct request_say *req_say = (struct request_say *)&req;
+            strcpy(req_say->req_channel, channel);
+            strcpy(req_say->req_text, text);
             retcode = sendto(sockid, (void *)&req_say, sizeof(void *), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
         }
         else if (req.req_type == REQ_LIST) {
-            struct request_list req_list = (struct request_list)req;
+            struct request_list *req_list = (struct request_list *)&req;
             retcode = sendto(sockid, (void *)&req_list, sizeof(void *), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
         }
         else if (req.req_type == REQ_WHO) {
-            struct request_who req_who = (struct request_who)req;
-            strcpy(req_who.req_channel, channel);
+            struct request_who *req_who = (struct request_who *)&req;
+            strcpy(req_who->req_channel, channel);
             retcode = sendto(sockid, (void *)&req_who, sizeof(void *), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
         }
         //retcode = request_handler(req);
@@ -178,13 +178,13 @@ int main(int argc, char *argv[]) {
             printf("Client: sendto failed: %d\n", errno);
             //return -1;
         }
-        nread = recvfrom(sockid, txt, sizeof(struct text), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+        nread = recvfrom(sockid, (void *)&txt, sizeof(void *), 0, (struct sockaddr *) &server_addr, (socklen_t *)sizeof(server_addr));
         if (nread > 0) {
-            txt_handler(txt);
+            txt_handler(()&txt);
         }
     }
     
     cooked_mode();
-    shutdown(sockid);
+    shutdown(sockid, 2);
     return 0;
 }
