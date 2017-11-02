@@ -81,7 +81,7 @@ void txt_handler(struct text *txt) {
 
 int main(UNUSED int argc, char *argv[]) {
     int retcode, nread, i;
-    struct sockaddr_in from, my_addr;
+    struct sockaddr_in from;// my_addr;
     struct hostent *hp;
 
     printf("Set up socket\n");
@@ -100,7 +100,7 @@ int main(UNUSED int argc, char *argv[]) {
         printf("Client: bind fail: %d\n", errno);
         return -1;
     }
-    /*
+    
     bzero((char *) &server_addr, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = gethostbyname(argv[1]);
