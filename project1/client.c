@@ -53,35 +53,35 @@ request_t exception_handler(char text[]) {
     return REQ_SAY;
 }
 
-void txt_handler(struct text txt) {
+void txt_handler(struct text *txt) {
     int i;
-    if (txt.txt_type == TXT_SAY) {
+    if (txt->txt_type == TXT_SAY) {
         struct text_say *txt_say = (struct text_say *)&txt;
         printf("[%s][%s]: %s", txt_say->txt_channel, txt_say->txt_username, txt_say->txt_text);
     }
-    else if (txt.txt_type == TXT_LIST) {
+    else if (txt->txt_type == TXT_LIST) {
         struct text_list *txt_list = (struct text_list *)&txt;
         printf("Existing channels:\n");
         for (i = 0; i < txt_list->txt_nchannels; i++) {
             printf("%s\n", txt_list->txt_channels[i].ch_channel);
         }
     }
-    else if (txt.txt_type == TXT_WHO) {
+    else if (txt->txt_type == TXT_WHO) {
         struct text_who *txt_who = (struct text_who *)&txt;
         printf("Users on channel %s:\n", txt_who->txt_channel);
         for (i = 0; i < txt_who->txt_nusernames; i++) {
             printf("%s\n", txt_who->txt_users[i].us_username);
         }
     }
-    else if (txt.txt_type == TXT_ERROR) {
+    else if (txt->txt_type == TXT_ERROR) {
         struct text_error *txt_error = (struct text_error *)&txt;
-        printf("%s\n", txt_error->txt_error);
+        perror(txt_error->txt_error);
     }
 }
 
 int main(UNUSED int argc, char *argv[]) {
     int retcode, nread, i;
-    struct sockaddr_in my_addr;
+    struct sockaddr_in from;//my_addr;
     struct hostent *hp;
 
     sockid = socket(AF_INET, SOCK_DGRAM, 0);
@@ -109,11 +109,12 @@ int main(UNUSED int argc, char *argv[]) {
     server_addr.sin_family = AF_INET;
     hp = gethostbyname(argv[1]);
     if (hp == 0) {
-        perror("Client: unknown host")
+        perror("Client: unknown host");
         return -1;
     }
     bcopy((char *)hp->h_addr, (char *)&server_addr.sin_addr, hp->h_length);
     server_addr.sin_port = htons(atoi(argv[2]));
+    int len = sizeof(struct sockaddr_in);
      
     struct request req;
     struct text txt;
@@ -193,7 +194,7 @@ int main(UNUSED int argc, char *argv[]) {
             perror("Client: sendto failed");
             //return -1;
         }
-        nread = recvfrom(sockid, (void *)&txt, sizeof(void *), 0, (struct sockaddr *) &server_addr, &(sizeof(server_addr)));
+        nread = recvfrom(sockid, (void *)&txt, sizeof(void *), 0, (struct sockaddr *) &from, &len);
         if (nread > 0) {
             txt_handler((struct text *)&txt);
         }
