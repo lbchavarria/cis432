@@ -241,7 +241,8 @@ int main(UNUSED int argc, char *argv[]) {
     for (i = 0; i < user_list.size; i++) {
         user_list.list[i].isempty = 1;
     }
-    User user, temp_user;
+    User user,
+    int temp_user;
     user.isempty = 0;
     user.subsize = 1;
     user.nsub = 0;
@@ -308,12 +309,12 @@ int main(UNUSED int argc, char *argv[]) {
                 //struct request_logout *req_logout = (struct request_logout *)&req;
                 for (i = 0; i < user_list.size; i++) {
                     if (user_list.list[i].client_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
-                        temp_user = user_list.list[i];
-                        for (j = 0; j < temp_user.nsub; j++) {
+                        //temp_user = user_list.list[i];
+                        for (j = 0; j < user_list.list[i].nsub; j++) {
                             for (k = 0; k < channel_list.size; k++) {
-                                if (strcmp(channel_list.list[k].txt_channel, temp_user.sub_channels[j]) == 0) {
+                                if (strcmp(channel_list.list[k].txt_channel, user_list.list[i].sub_channels[j]) == 0) {
                                     for (l = 0; l < channel_list.list[k].txt_users.size; l++) {
-                                        if (channel_list.list[k].txt_users.list[l].client_addr.sin_addr.s_addr == temp_user.client_addr.sin_addr.s_addr) {
+                                        if (channel_list.list[k].txt_users.list[l].client_addr.sin_addr.s_addr == user_list.list[i].client_addr.sin_addr.s_addr) {
                                             //destroy_user(channel_list.list[k].txt_users.list[l]);
                                             channel_list.list[k].txt_users.list[l].isempty = 1;
                                         }
@@ -323,8 +324,8 @@ int main(UNUSED int argc, char *argv[]) {
                         }
                         //destroy_user(user_list.list[i]);
                         user_list.list[i].isempty = 1;
-                        destroy_user(temp_user);
-                        temp_user.isempty = 1;
+                        //destroy_user(temp_user);
+                        //temp_user.isempty = 1;
                         nusers--;
                         break;
                     }
@@ -337,7 +338,7 @@ int main(UNUSED int argc, char *argv[]) {
                 strcpy(channel.txt_channel, req_join->req_channel);
                 for (i = 0; i < user_list.size; i++) {
                     if (user_list.list[i].client_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
-                        temp_user = user_list.list[i];
+                        temp_user = i;
                         break;
                     }
                 }
@@ -345,7 +346,7 @@ int main(UNUSED int argc, char *argv[]) {
                     if (strcmp(channel_list.list[i].txt_channel, channel.txt_channel) == 0) {
                         ch_exist = 1;
                         for (j = 0; j < channel_list.list[i].txt_users.size; j++) {
-                            if (channel_list.list[i].txt_users.list[j].client_addr.sin_addr.s_addr == temp_user.client_addr.sin_addr.s_addr) {
+                            if (channel_list.list[i].txt_users.list[j].client_addr.sin_addr.s_addr == user_list.list[temp_user].client_addr.sin_addr.s_addr) {
                                 err = 1;
                                 //send error
                                 char errtxt[SAY_MAX];
@@ -363,7 +364,7 @@ int main(UNUSED int argc, char *argv[]) {
                             }
                             for (j = 0; j < channel_list.list[i].txt_users.size; j++) {
                                 if (channel_list.list[i].txt_users.list[j].isempty) {
-                                    channel_list.list[i].txt_users.list[j] = temp_user;
+                                    channel_list.list[i].txt_users.list[j] = user_list.list[temp_user];
                                     strcpy(channel_list.list[i].txt_users.list[j].current_channel, channel.txt_channel);
                                     break;
                                 }
@@ -407,14 +408,14 @@ int main(UNUSED int argc, char *argv[]) {
                             channel_list.size++;
                             channel_list.list = realloc(channel_list.list, sizeof(Channel)*channel_list.size);
                             channel_list.list[channel_list.size-1] = channel;
-                            channel_list.list[channel_list.size-1].txt_users.list[0] = temp_user;
+                            channel_list.list[channel_list.size-1].txt_users.list[0] = user_list.list[temp_user];
                             strcpy(channel_list.list[channel_list.size-1].txt_users.list[0].current_channel, channel.txt_channel);
                             break;
                         }
                     }
                 }
                 err = 0;
-                destroy_user(temp_user);
+                //destroy_user(temp_user);
             }
             else if (req.req_type == REQ_LEAVE) {
                 printf("Leave\n");
