@@ -314,7 +314,7 @@ int main(UNUSED int argc, char *argv[]) {
                                 if (strcmp(channel_list.list[k].txt_channel, temp_user.sub_channels[j]) == 0) {
                                     for (l = 0; l < channel_list.list[k].txt_users.size; l++) {
                                         if (channel_list.list[k].txt_users.list[l].client_addr.sin_addr.s_addr == temp_user.client_addr.sin_addr.s_addr) {
-                                            destroy_user(channel_list.list[k].txt_users.list[l]);
+                                            //destroy_user(channel_list.list[k].txt_users.list[l]);
                                             channel_list.list[k].txt_users.list[l].isempty = 1;
                                         }
                                     }
