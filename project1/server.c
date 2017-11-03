@@ -123,7 +123,7 @@ void text_handler(struct text txt) {
                 ch_exist = 1;
                 for (j = 0; j < channel_list.list[i].txt_users.size; j++) {
                     if (channel_list.list[i].txt_users.list[j].isempty == 0) {
-                        retcode = sendto(sockid, (struct text *)&txt_say, sizeof(struct text), 0, (struct sockaddr *) &channel_list.list[i].txt_users.list[j].client_addr, sizeof(channel_list.list[i].txt_users.list[j].client_addr));
+                        retcode = sendto(sockid, (struct text *)&txt_say, sizeof(struct text), 0, (struct sockaddr *) &(channel_list.list[i].txt_users.list[j].client_addr), sizeof(channel_list.list[i].txt_users.list[j].client_addr));
                         if (retcode <= -1) {
                             perror("Server: sendto failed to user");
                         }
