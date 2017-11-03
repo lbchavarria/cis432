@@ -501,9 +501,9 @@ int main(UNUSED int argc, char *argv[]) {
     //free(who);
     
     destroy_channel_list(channel_list);
-    destroy_channel(channel);
-    destroy_user_list(user_list);
-    destroy_user(user);
+    //destroy_channel(channel);
+    //destroy_user_list(user_list);
+    //destroy_user(user);
     shutdown(sockid, 2);
     return 0;
 }
