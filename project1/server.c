@@ -414,7 +414,7 @@ int main(UNUSED int argc, char *argv[]) {
                                     //err = 1;
                                     strcpy(errtxt, "Max amount of channels user can subscribe to\n");
                                     error_handler(errtxt);
-                                    break
+                                    break;
                                     /*user_list.list[i].subsize = user_list.list[i].nsub;
                                     user_list.list[i].sub_channels = realloc(user_list.list[i].sub_channels, sizeof(char *)*user_list.list[i].subsize);
                                     user_list.list[i].sub_channels[user_list.list[i].subsize-1] = (char *)malloc(sizeof(char)*CHANNEL_MAX);
