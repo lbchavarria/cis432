@@ -230,12 +230,13 @@ int main(UNUSED int argc, char *argv[]) {
     Channel channel;
     //channel.nchannels = 0;
     //channel.nusers = 0;
-    channel.user_size = U_MAXSIZE;
-    channel.txt_users.list = (User *)malloc(sizeof(User)*channel.user_size);
+    channel.user_size = 0;
+    channel.txt_users.size = U_MAXSIZE;
+    channel.txt_users.list = (User *)malloc(sizeof(User)*channel.txt_user.size);
     for (i = 0; i < channel.user_size; i++) {
         channel.txt_users.list[i].isempty = 1;
     }
-    channel.txt_users.size = channel.user_size;
+    
     
     channel_list.size = C_MAXSIZE;
     channel_list.nchannels = 1;
@@ -281,11 +282,12 @@ int main(UNUSED int argc, char *argv[]) {
                 
                 strcpy(channel.txt_channel, "Common");
                 
-                if (channel_list.size == 0) {
+                channel_list.list[0] = channel;
+                /*if (channel_list.size == 0) {
                     channel_list.size = 1;
-                    channel_list.list[0] = channel;
+                    
                     //strcpy(channel[0]->txt_channel, "Common");
-                }
+                }*/
                 nusers++;
                 if (nusers > user_list.size) {
                     //send error
@@ -312,9 +314,10 @@ int main(UNUSED int argc, char *argv[]) {
                         channel_list.list[0].txt_users.list[channel_list.list[0].user_size-1].isempty = 1;*/
                     }
                     if (!err) {
-                        for (i = 0; i < channel_list.list[0].user_size; i++) {
+                        for (i = 0; i < channel_list.list[0].txt_users.size; i++) {
                             if (channel_list.list[0].txt_users.list[i].isempty == 1) {
                                 channel_list.list[0].txt_users.list[i] = user;
+                                channel_list.list[0].user_size++;
                                 break;
                             }
                         }
