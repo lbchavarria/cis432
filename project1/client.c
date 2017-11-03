@@ -74,7 +74,7 @@ void txt_handler(struct text txt) {
         }
     }
     else if (txt.txt_type == TXT_ERROR) {
-        printf("Error/n");
+        printf("Error\n");
         struct text_error *txt_error = (struct text_error *)&txt;
         perror(txt_error->txt_error);
     }

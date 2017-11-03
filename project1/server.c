@@ -9,6 +9,8 @@
 #include "duckchat.h"
 
 #define UNUSED __attribute__ ((unused))
+#define C_MAXSIZE 20
+#define U_MAXSIZE 100
 
 typedef struct user {
     int isempty;
@@ -35,6 +37,7 @@ typedef struct channel {
 
 //added
 typedef struct channel_list {
+    int nchannels;
     int size;
     Channel *list;
 } ChannelList;
@@ -88,7 +91,7 @@ void destroy_channel_list(ChannelList list) {
 
 void error_handler(char *txt) {
     int retcode;
-    printf("Error/n");
+    printf("Error\n");
     struct text_error txt_error;
     strcpy(txt_error.txt_error, txt);
     txt_error.txt_type = TXT_ERROR;
@@ -227,17 +230,18 @@ int main(UNUSED int argc, char *argv[]) {
     Channel channel;
     //channel.nchannels = 0;
     //channel.nusers = 0;
-    channel.user_size = 10;
+    channel.user_size = U_MAXSIZE;
     channel.txt_users.list = (User *)malloc(sizeof(User)*channel.user_size);
     for (i = 0; i < channel.user_size; i++) {
         channel.txt_users.list[i].isempty = 1;
     }
     channel.txt_users.size = channel.user_size;
     
-    channel_list.size = 0;
+    channel_list.size = C_MAXSIZE;
+    channel_list.nchannels = 1;
     channel_list.list = (Channel *)malloc(sizeof(Channel));
     
-    user_list.size = 1;
+    user_list.size = U_MAXSIZE;
     user_list.list = (User *)malloc(sizeof(User)*user_list.size);
     for (i = 0; i < user_list.size; i++) {
         user_list.list[i].isempty = 1;
@@ -245,13 +249,14 @@ int main(UNUSED int argc, char *argv[]) {
     User user;
     int temp_user;
     user.isempty = 0;
-    user.subsize = 1;
+    user.subsize = C_MAXSIZE;
     user.nsub = 0;
     user.sub_channels = (char **)malloc(sizeof(char *)*user.subsize);
     for (i = 0; i < user.subsize; i++) {
         user.sub_channels[i] = (char *)malloc(sizeof(char)*CHANNEL_MAX);
     }
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
+    char errtxt[SAY_MAX];
 
     while(1) {
         printf("Receive\n");
@@ -283,25 +288,36 @@ int main(UNUSED int argc, char *argv[]) {
                 }
                 nusers++;
                 if (nusers > user_list.size) {
-                    user_list.size = nusers;
+                    //send error
+                    err = 1;
+                    strcpy(errtxt, "Max amount of users have logged in\n");
+                    error_handler(errtxt);
+                    /*user_list.size = nusers;
                     user_list.list = realloc(user_list.list, sizeof(User)*user_list.size);
-                    user_list.list[user_list.size-1].isempty = 1;
+                    user_list.list[user_list.size-1].isempty = 1;*/
                 }
-                for (i = 0; i < user_list.size; i++) {
-                    if (user_list.list[i].isempty) {
-                        user_list.list[i] = user;
-                        break;
+                if (!err) {
+                    for (i = 0; i < user_list.size; i++) {
+                        if (user_list.list[i].isempty) {
+                            user_list.list[i] = user;
+                            break;
+                        }
                     }
-                }
-                if (nusers > channel_list.list[0].txt_users.size) {
-                    channel_list.list[0].user_size = nusers;
-                    channel_list.list[0].txt_users.list = realloc(channel_list.list[0].txt_users.list, sizeof(User)*channel_list.list[0].user_size);
-                    channel_list.list[0].txt_users.list[channel_list.list[0].user_size-1].isempty = 1;
-                }
-                for (i = 0; i < channel_list.list[0].user_size; i++) {
-                    if (channel_list.list[0].txt_users.list[i].isempty == 1) {
-                        channel_list.list[0].txt_users.list[i] = user;
-                        break;
+                    if (nusers > channel_list.list[0].txt_users.size) {
+                        err = 1;
+                        strcpy(errtxt, "Max amount of users have logged in\n");
+                        error_handler(errtxt);
+                        /*channel_list.list[0].user_size = nusers;
+                        channel_list.list[0].txt_users.list = realloc(channel_list.list[0].txt_users.list, sizeof(User)*channel_list.list[0].user_size);
+                        channel_list.list[0].txt_users.list[channel_list.list[0].user_size-1].isempty = 1;*/
+                    }
+                    if (!err) {
+                        for (i = 0; i < channel_list.list[0].user_size; i++) {
+                            if (channel_list.list[0].txt_users.list[i].isempty == 1) {
+                                channel_list.list[0].txt_users.list[i] = user;
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -350,7 +366,6 @@ int main(UNUSED int argc, char *argv[]) {
                             if (channel_list.list[i].txt_users.list[j].client_addr.sin_addr.s_addr == user_list.list[temp_user].client_addr.sin_addr.s_addr) {
                                 err = 1;
                                 //send error
-                                char errtxt[SAY_MAX];
                                 strcpy(errtxt, "User already subscribed to channel\n");
                                 error_handler(errtxt);
                                 break;
@@ -359,9 +374,13 @@ int main(UNUSED int argc, char *argv[]) {
                         if (!err) {
                             channel_list.list[i].user_size++;
                             if (channel_list.list[i].user_size > channel_list.list[i].txt_users.size) {
-                                channel_list.list[i].txt_users.size = channel_list.list[i].user_size;
+                                //err = 1;
+                                strcpy(errtxt, "Max amount of users have subscribed\n");
+                                error_handler(errtxt);
+                                break;
+                                /*channel_list.list[i].txt_users.size = channel_list.list[i].user_size;
                                 channel_list.list[i].txt_users.list = realloc(channel_list.list[i].txt_users.list, sizeof(User)*channel_list.list[i].txt_users.size);
-                                channel_list.list[i].txt_users.list[channel_list.list[i].txt_users.size-1].isempty = 1;
+                                    channel_list.list[i].txt_users.list[channel_list.list[i].txt_users.size-1].isempty = 1;*/
                             }
                             for (j = 0; j < channel_list.list[i].txt_users.size; j++) {
                                 if (channel_list.list[i].txt_users.list[j].isempty) {
@@ -384,7 +403,6 @@ int main(UNUSED int argc, char *argv[]) {
                                 if (strcmp(user_list.list[i].sub_channels[j], channel.txt_channel) == 0) {
                                     err = 1;
                                     //send error
-                                    char errtxt[SAY_MAX];
                                     strcpy(errtxt, "User already subscribed to channel\n");
                                     error_handler(errtxt);
                                     break;
@@ -393,10 +411,14 @@ int main(UNUSED int argc, char *argv[]) {
                             if (!err) {
                                 user_list.list[i].nsub++;
                                 if (user_list.list[i].nsub > user_list.list[i].subsize) {
-                                    user_list.list[i].subsize = user_list.list[i].nsub;
+                                    //err = 1;
+                                    strcpy(errtxt, "Max amount of channels user can subscribe to\n");
+                                    error_handler(errtxt);
+                                    break
+                                    /*user_list.list[i].subsize = user_list.list[i].nsub;
                                     user_list.list[i].sub_channels = realloc(user_list.list[i].sub_channels, sizeof(char *)*user_list.list[i].subsize);
                                     user_list.list[i].sub_channels[user_list.list[i].subsize-1] = (char *)malloc(sizeof(char)*CHANNEL_MAX);
-                                    strcpy(user_list.list[i].sub_channels[user_list.list[i].subsize-1], channel.txt_channel);
+                                    strcpy(user_list.list[i].sub_channels[user_list.list[i].subsize-1], channel.txt_channel);*/
                                 }
                                 else {
                                     for (j = 0; j < user_list.list[i].subsize; j++) {
@@ -406,11 +428,12 @@ int main(UNUSED int argc, char *argv[]) {
                                     }
                                 }
                             }
-                            channel_list.size++;
-                            channel_list.list = realloc(channel_list.list, sizeof(Channel)*channel_list.size);
-                            channel_list.list[channel_list.size-1] = channel;
-                            channel_list.list[channel_list.size-1].txt_users.list[0] = user_list.list[temp_user];
-                            strcpy(channel_list.list[channel_list.size-1].txt_users.list[0].current_channel, channel.txt_channel);
+                            /*channel_list.size++;
+                            channel_list.list = realloc(channel_list.list, sizeof(Channel)*channel_list.size);*/
+                            channel_list.nchannels++;
+                            channel_list.list[channel_list.nchannels-1] = channel;
+                            channel_list.list[channel_list.nchannels-1].txt_users.list[0] = user_list.list[temp_user];
+                            strcpy(channel_list.list[channel_list.nchannels-1].txt_users.list[0].current_channel, channel.txt_channel);
                             break;
                         }
                     }
@@ -443,7 +466,6 @@ int main(UNUSED int argc, char *argv[]) {
                         }
                         if (!ch_exist) {
                             //send error
-                            char errtxt[SAY_MAX];
                             strcpy(errtxt, "Channel does not exist\n");
                             error_handler(errtxt);
                             break;
@@ -461,7 +483,6 @@ int main(UNUSED int argc, char *argv[]) {
                         }
                         if (!ch_exist) {
                             //send error
-                            char errtxt[SAY_MAX];
                             strcpy(errtxt, "Channel does not exist\n");
                             error_handler(errtxt);
                             break;
