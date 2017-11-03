@@ -121,7 +121,7 @@ int text_handler(struct text txt) {
                 break;
             }
             else {
-                err = 1
+                err = 1;
             }
         }
         if (err) {
@@ -229,7 +229,7 @@ int text_handler(struct text txt) {
         }
         return err;
     }
-    
+    return 0;
 }
 
 int main(UNUSED int argc, char *argv[]) {
