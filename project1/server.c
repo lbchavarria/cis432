@@ -122,9 +122,11 @@ void text_handler(struct text txt) {
             if (strcmp(channel_list.list[i].txt_channel, txt_say.txt_channel) == 0) {
                 ch_exist = 1;
                 for (j = 0; j < channel_list.list[i].user_size; j++) {
-                    retcode = sendto(sockid, (struct text *)&txt_say, sizeof(struct text), 0, (struct sockaddr *) &channel_list.list[i].txt_users.list[j].client_addr, sizeof(channel_list.list[i].txt_users.list[j].client_addr));
-                    if (retcode <= -1) {
-                        perror("Server: sendto failed to user");
+                    if (!channel_list.list[i].txt_users.list[j].isempty) {
+                        retcode = sendto(sockid, (struct text *)&txt_say, sizeof(struct text), 0, (struct sockaddr *) &channel_list.list[i].txt_users.list[j].client_addr, sizeof(channel_list.list[i].txt_users.list[j].client_addr));
+                        if (retcode <= -1) {
+                            perror("Server: sendto failed to user");
+                        }
                     }
                 }
                 break;
@@ -233,7 +235,7 @@ int main(UNUSED int argc, char *argv[]) {
     channel.user_size = 0;
     channel.txt_users.size = U_MAXSIZE;
     channel.txt_users.list = (User *)malloc(sizeof(User)*channel.txt_users.size);
-    for (i = 0; i < channel.user_size; i++) {
+    for (i = 0; i < channel.txt_users.size; i++) {
         channel.txt_users.list[i].isempty = 1;
     }
     
