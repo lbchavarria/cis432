@@ -232,7 +232,7 @@ int main(UNUSED int argc, char *argv[]) {
     //channel.nusers = 0;
     channel.user_size = 0;
     channel.txt_users.size = U_MAXSIZE;
-    channel.txt_users.list = (User *)malloc(sizeof(User)*channel.txt_user.size);
+    channel.txt_users.list = (User *)malloc(sizeof(User)*channel.txt_users.size);
     for (i = 0; i < channel.user_size; i++) {
         channel.txt_users.list[i].isempty = 1;
     }
