@@ -241,7 +241,7 @@ int main(UNUSED int argc, char *argv[]) {
     for (i = 0; i < user_list.size; i++) {
         user_list.list[i].isempty = 1;
     }
-    User user,
+    User user;
     int temp_user;
     user.isempty = 0;
     user.subsize = 1;
