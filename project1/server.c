@@ -118,6 +118,7 @@ void text_handler(struct text txt) {
                 break;
             }
         }
+        printf("%s, %s, %s", txt_say.txt_channel, txt_say.txt_username, txt_say.txt_text);
         for (i = 0; i < channel_list.size; i++) {
             if (strcmp(channel_list.list[i].txt_channel, txt_say.txt_channel) == 0) {
                 ch_exist = 1;
