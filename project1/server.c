@@ -108,7 +108,9 @@ void text_handler(struct text txt) {
         struct text_say txt_say;// = (struct text_say *)&txt;
         txt_say.txt_type = TXT_SAY;
         strcpy(txt_say.txt_channel, req_say->req_channel);
+        printf("%s\n", txt_say.txt_channel);
         strcpy(txt_say.txt_text, req_say->req_text);
+        printf("%s\n", txt_say.txt_text);
         for (i = 0; i < user_list.size; i++) {
             if (user_list.list[i].client_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                 if (strcmp(user_list.list[i].current_channel, txt_say.txt_channel) != 0) {
@@ -118,7 +120,7 @@ void text_handler(struct text txt) {
                 break;
             }
         }
-        printf("%s, %s, %s", txt_say.txt_channel, txt_say.txt_username, txt_say.txt_text);
+        printf("%s\n"txt_say.txt_username);
         for (i = 0; i < channel_list.size; i++) {
             if (strcmp(channel_list.list[i].txt_channel, txt_say.txt_channel) == 0) {
                 ch_exist = 1;
