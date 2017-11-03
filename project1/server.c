@@ -50,7 +50,7 @@ struct request req;
 
 void destroy_user(User user) {
     int i;
-    for (i = 0; i < user.nsub; i++) {
+    for (i = 0; i < user.subsize; i++) {
         if (user.sub_channels[i] != NULL) {
             free(user.sub_channels[i]);
             user.sub_channels[i] = NULL;
@@ -79,10 +79,10 @@ void destroy_channel(Channel channel) {
 }
 
 void destroy_channel_list(ChannelList list) {
-    int i;
+    /*int i;
     for (i = 0; i < list.size; i++) {
         destroy_channel(list.list[i]);
-    }
+    }*/
     if (list.list != NULL) {
         free(list.list);
         list.list = NULL;
@@ -101,8 +101,8 @@ void error_handler(char *txt) {
     }
 }
 
-void text_handler(struct text txt) {
-    int i, j, k, ch_exist, retcode;
+int text_handler(struct text txt) {
+    int i, j, k, ch_exist, retcode, err;
     if (txt.txt_type == TXT_SAY) {
         struct request_say *req_say = (struct request_say *)&req;
         struct text_say txt_say;// = (struct text_say *)&txt;
@@ -114,11 +114,18 @@ void text_handler(struct text txt) {
         for (i = 0; i < user_list.size; i++) {
             if (user_list.list[i].client_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                 if (strcmp(user_list.list[i].current_channel, txt_say.txt_channel) != 0) {
+                    err = 0;
                     strcpy(user_list.list[i].current_channel, txt_say.txt_channel);
                 }
                 strcpy(txt_say.txt_username, user_list.list[i].username);
                 break;
             }
+            else {
+                err = 1
+            }
+        }
+        if (err) {
+            return err;
         }
         printf("%s\n", txt_say.txt_username);
         for (i = 0; i < channel_list.size; i++) {
@@ -144,11 +151,22 @@ void text_handler(struct text txt) {
             strcpy(errtxt, "Channel does not exist\n");
             error_handler(errtxt);
         }
-        return;
+        return err;
     }
     else if (txt.txt_type == TXT_LIST) {
         //struct request_list *req_list = (struct request_list *)&req;
         struct text_list txt_list;// = (struct text_list *)&txt;
+        for (i = 0; i < user_list.size; i++) {
+            if (user_list.list[i].client_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
+                err = 0;
+            }
+            else {
+                err = 1;
+            }
+        }
+        if (err) {
+            return err;
+        }
         txt_list.txt_type = TXT_LIST;
         txt_list.txt_nchannels = channel_list.size;
         struct channel_info i_channels[txt_list.txt_nchannels];
@@ -160,11 +178,22 @@ void text_handler(struct text txt) {
         if (retcode <= -1) {
             perror("Server: sendto failed");
         }
-        return;
+        return err;
     }
     else if (txt.txt_type == TXT_WHO) {
         k = 0;
         struct request_who *req_who = (struct request_who *)&req;
+        for (i = 0; i < user_list.size; i++) {
+            if (user_list.list[i].client_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
+                err = 0;
+            }
+            else {
+                err = 1;
+            }
+        }
+        if (err) {
+            return err;
+        }
         struct text_who txt_who;// = (struct text_who *)&txt;
         txt_who.txt_type = TXT_WHO;
         strcpy(txt_who.txt_channel, req_who->req_channel);
@@ -198,7 +227,7 @@ void text_handler(struct text txt) {
         if (retcode <= -1) {
             perror("Server: sendto failed");
         }
-        return;
+        return err;
     }
     
 }
@@ -335,6 +364,7 @@ int main(UNUSED int argc, char *argv[]) {
                 for (i = 0; i < user_list.size; i++) {
                     if (user_list.list[i].client_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                         //temp_user = user_list.list[i];
+                        err = 0;
                         for (j = 0; j < user_list.list[i].nsub; j++) {
                             for (k = 0; k < channel_list.size; k++) {
                                 if (strcmp(channel_list.list[k].txt_channel, user_list.list[i].sub_channels[j]) == 0) {
@@ -354,6 +384,15 @@ int main(UNUSED int argc, char *argv[]) {
                         nusers--;
                         break;
                     }
+                    else {
+                        err = 1;
+                    }
+                }
+                if (err) {
+                    //send error
+                    strcpy(errtxt, "User has not logged in");
+                    error_handler(errtxt);
+                    break;
                 }
             }
             else if (req.req_type == REQ_JOIN) {
@@ -364,8 +403,17 @@ int main(UNUSED int argc, char *argv[]) {
                 for (i = 0; i < user_list.size; i++) {
                     if (user_list.list[i].client_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                         temp_user = i;
+                        err = 0;
                         break;
                     }
+                    else {
+                        err = 1;
+                    }
+                }
+                if (err) {
+                    strcpy(errtxt, "User has not logged in");
+                    error_handler(errtxt);
+                    break;
                 }
                 for (i = 0; i < channel_list.size; i++) {
                     if (strcmp(channel_list.list[i].txt_channel, channel.txt_channel) == 0) {
@@ -456,6 +504,7 @@ int main(UNUSED int argc, char *argv[]) {
                 strcpy(channel.txt_channel, req_leave->req_channel);
                 for (i = 0; i < user_list.size; i++) {
                     if (user_list.list[i].client_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
+                        err = 0;
                         for (j = 0; j < channel_list.size; j++) {
                             if (strcmp(channel_list.list[j].txt_channel, channel.txt_channel) == 0) {
                                 ch_exist = 1;
@@ -500,6 +549,14 @@ int main(UNUSED int argc, char *argv[]) {
                         }
                         break;
                     }
+                    else {
+                        err = 1;
+                    }
+                }
+                if (err) {
+                    strcpy(errtxt, "User has not logged in");
+                    error_handler(errtxt);
+                    break;
                 }
             }
             else if (req.req_type == REQ_SAY) {
@@ -507,19 +564,33 @@ int main(UNUSED int argc, char *argv[]) {
                 txt.txt_type = TXT_SAY;
                 //retcode =
                 text_handler(txt);
-                
+                if (err) {
+                    strcpy(errtxt, "User has not logged in");
+                    error_handler(errtxt);
+                    break;
+                }
             }
             else if (req.req_type == REQ_LIST) {
                 printf("List\n");
                 txt.txt_type = TXT_LIST;
                 //retcode =
                 text_handler(txt);
+                if (err) {
+                    strcpy(errtxt, "User has not logged in");
+                    error_handler(errtxt);
+                    break;
+                }
             }
             else if (req.req_type == REQ_WHO) {
                 printf("Who\n");
                 txt.txt_type = TXT_WHO;
                 //retcode =
                 text_handler(txt);
+                if (err) {
+                    strcpy(errtxt, "User has not logged in");
+                    error_handler(errtxt);
+                    break;
+                }
             }
         }
         if (nusers == 0) {
