@@ -88,6 +88,7 @@ void destroy_channel_list(ChannelList list) {
 
 void error_handler(char *txt) {
     int retcode;
+    printf("Error/n");
     struct text_error txt_error;
     strcpy(txt_error.txt_error, txt);
     txt_error.txt_type = TXT_ERROR;
