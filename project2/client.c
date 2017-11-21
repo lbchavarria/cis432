@@ -136,7 +136,7 @@ int main(UNUSED int argc, char *argv[]) {
     req_login.req_type = REQ_LOGIN;
     strcpy(i_channel, "Common");
     void *login = &req_login;
-    retcode = sendto(sockid, login, sizeof(login), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+    retcode = sendto(sockid, login, sizeof(struct request_login), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
     if (retcode <= -1) {
         perror("Client: sendto failed");
         return -1;
