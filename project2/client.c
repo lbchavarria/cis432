@@ -12,6 +12,9 @@
 #include "raw.h"
 
 #define UNUSED __attribute__ ((unused))
+#define M_MAXSIZE 65536
+
+char r_txt[M_MAXSIZE];
 
 int sockid;
 char i_channel[CHANNEL_MAX], text[SAY_MAX], temp_channel[CHANNEL_MAX], buff;
@@ -132,7 +135,8 @@ int main(UNUSED int argc, char *argv[]) {
     strcpy(req_login.req_username, argv[3]);
     req_login.req_type = REQ_LOGIN;
     strcpy(i_channel, "Common");
-    retcode = sendto(sockid, (struct request *)&req_login, sizeof(struct request), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
+    void *login = &req_login;
+    retcode = sendto(sockid, login, sizeof(login), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));
     if (retcode <= -1) {
         perror("Client: sendto failed");
         return -1;
@@ -235,7 +239,7 @@ int main(UNUSED int argc, char *argv[]) {
         if (req.req_type == REQ_JOIN || req.req_type == REQ_LEAVE) {
             continue;
         }
-        nread = recvfrom(sockid, (struct text *)&txt, sizeof(struct text), 0, (struct sockaddr *) &from, &len);
+        nread = recvfrom(sockid, (struct text *)&txt, sizeof(r_txt), 0, (struct sockaddr *) &from, &len);
         if (nread > 0) {
             //printf("Text handle\n");
             txt_handler(txt);
