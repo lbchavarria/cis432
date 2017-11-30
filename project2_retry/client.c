@@ -162,16 +162,17 @@ void client_data_handler(char txt[], c_type ct) {
      */
     int retcode;
     CData *cd = (CData *)malloc(sizeof(CData));
-    if (ct = WHO) {
-        strcpy(cd->channel, temp_channel);
-    }
-    else {
+    //if (ct = WHO) {
+        //strcpy(cd->channel, temp_channel);
+    //}
+    //else {
         strcpy(cd->channel, current_channel);
-    }
+    //}
     strcpy(cd->username, user_name);
     strcpy(cd->message, txt);
     printf("%d", ct);
     cd->type = ct;
+    printf("Send\n");
     retcode = sendto(sockid, cd, sizeof(CData), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
     if (retcode <= -1) {
         printf("Client failed to send appropriate data to server\n");
