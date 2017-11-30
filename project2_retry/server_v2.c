@@ -119,7 +119,7 @@ void user_login(request_login *data) {
     }
     for (i = 0; i < channel_list->size; i++) {
         if (strcmp(((Channel *)channel_list->buffer[i])->name, "Common") == 0) {
-            if (insertList(((Channel *)channel_list->buffer[i])->user_list, &user) == 0) {
+            if (insertList(((Channel *)channel_list->buffer[i])->user_list, &new_user) == 0) {
                 //send error
             }
             break;
