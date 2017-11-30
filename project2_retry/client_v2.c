@@ -200,12 +200,15 @@ void server_data_handler() {
     /* Receives data from server
      * Handles sd depending on type
      */
+    printf("Srart Receive\n");
     int nread;
     char r_txt[65536];
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
     void *data;
+    printf("Attempting receive\n");
     nread = recvfrom(sockid, (struct text *)&data, 65536, 0, (struct sockaddr *)&from, &len);
     if (nread > 0) {
+        printf("Success\n");
         if (((struct text *)data)->txt_type == TXT_SAY) {
             printf("[%s][%s]%s", ((struct text_say *)data)->txt_channel, ((struct text_say *)data)->txt_username, ((struct text_say *)data)->txt_text);
         }
