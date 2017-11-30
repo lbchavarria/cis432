@@ -145,6 +145,7 @@ void user_login(CData *cd) {
             //If cannot join any channels send error message and return
         }
         printf("Common created\n");
+        destroyList(new_channel);
     }
     printf("Add user\n");
     for (i = 0; i < channel_list->pos; i++) {
