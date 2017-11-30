@@ -85,20 +85,25 @@ void send_error(struct text_error t_error) {
 }
 
 void send_say(struct text_say t_say) {
+    printf("Start send\n");
     int retcode, i, j;
     for (i = 0; i < channel_list->pos; i++) {
         if (strcmp(t_say.txt_channel, ((Channel *)channel_list->buffer[i])->name) == 0) {
+            printf("Found channel\n");
             for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->pos; j++) {
                 if (((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->isActive) {
+                    printf("Attempting to send\n");
                     retcode = sendto(sockid, &t_say, sizeof(struct text_say), 0, (struct sockaddr *)&(((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr), sizeof(((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr));
                     if (retcode <= -1) {
                         printf("Message failed to send to user %s\n", ((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->username);
                     }
+                    printf("Sent\n");
                 }
             }
             break;
         }
     }
+    printf("Done\n");
 }
 
 void user_login(request_login *data) {
