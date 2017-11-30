@@ -211,6 +211,7 @@ void user_say(request_say *data) {
     printf("Enter for loop\n");
     for (i = 0; i < channel_list->size; i++) {
         if (strcmp(((Channel *)channel_list->buffer[i])->name, data->req_channel) == 0) {
+            printf("Found channel\n");
             for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->size; j++) {
                 if (((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                     strcpy(t_say.txt_username, ((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->username);
