@@ -117,7 +117,7 @@ c_type setType(char txt[]) {
             current_channel[i] = txt[strlen("/leave ")+i];
         }
         return LEAVE;
-    }
+    }/*
     if (strcmp(txt, "/list") == 0) {
         return LIST;
     }
@@ -136,7 +136,7 @@ c_type setType(char txt[]) {
             temp_channel[i] = txt[strlen("/who ")+i];
         }
         return WHO;
-    }
+    }*/
     if (strncmp(txt, "/switch", strlen("/switch")) == 0) {
         char temp[MESSAGE_MAX+1];
         remove_spaces(txt, temp);
@@ -170,6 +170,7 @@ void client_data_handler(char txt[], c_type ct) {
     }
     strcpy(cd->username, user_name);
     strcpy(cd->message, txt);
+    printf("%d", ct);
     cd->type = ct;
     retcode = sendto(sockid, cd, sizeof(CData), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
     if (retcode <= -1) {
