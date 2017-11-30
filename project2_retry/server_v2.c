@@ -240,7 +240,7 @@ void client_data_handler() {
     
     nread = recvfrom(sockid, (struct request *)&data, 65536, 0, (struct sockaddr *)&client_addr, &len);
     if (nread > 0) {
-        if (((struct request *)&data)->req_type == REQ_LOGIN) {
+        if (data->req_type == REQ_LOGIN) {
             user_login((struct request_login *)&data);
         }
         else if (((struct request *)&data)->req_type == REQ_LOGOUT) {
