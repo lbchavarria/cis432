@@ -49,7 +49,7 @@ char* get_char_input() {
      * Store input into char array and return char array
      */
     char c = '\0';
-    char txt[MESSAGE_MAX];
+    char txt[SAY_MAX];
     int i = 0;
     printf("> ");
     while (1) {
@@ -62,7 +62,7 @@ char* get_char_input() {
             break;
         }
         else {
-            if (i == MESSAGE_MAX) {
+            if (i == SAY_MAX) {
                 //txt[i] = '/0';
                 break;
             }
@@ -85,7 +85,7 @@ request_t setType(char txt[]) {
         return REQ_LOGOUT;
     }
     if (strncmp(txt, "/join", strlen("/join")) == 0) {
-        char temp[MESSAGE_MAX];
+        char temp[SAY_MAX];
         remove_spaces(txt, temp);
         if (strlen(temp) == strlen("/join")) {
             return REQ_SAY;
@@ -101,7 +101,7 @@ request_t setType(char txt[]) {
         return REQ_JOIN;
     }
     if (strncmp(txt, "/leave", strlen("/leave")) == 0) {
-        char temp[MESSAGE_MAX];
+        char temp[SAY_MAX];
         remove_spaces(txt, temp);
         if (strlen(temp) == strlen("/leave")) {
             return REQ_SAY;
@@ -120,7 +120,7 @@ request_t setType(char txt[]) {
         return LIST;
     }
     if (strncmp(txt, "/who", strlen("/who")) == 0) {
-        char temp[MESSAGE_MAX];
+        char temp[SAY_MAX];
         remove_spaces(txt, temp);
         if (strlen(temp) == strlen("/who")) {
             return SAY;
@@ -136,7 +136,7 @@ request_t setType(char txt[]) {
         return WHO;
     }*/
     if (strncmp(txt, "/switch", strlen("/switch")) == 0) {
-        char temp[MESSAGE_MAX+1];
+        char temp[SAY_MAX];
         remove_spaces(txt, temp);
         if (strlen(temp) == strlen("/switch")) {
             return REQ_SAY;
@@ -233,7 +233,7 @@ void server_data_handler() {
 }
 
 int main(UNUSED int argc, char *argv[]) {
-    char txt[MESSAGE_MAX+1];
+    char txt[SAY_MAX];
     request_t rt;
     struct hostent *hp;
     
