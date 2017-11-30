@@ -62,7 +62,7 @@ void destroyList(List *list) {
     free(list);
 }
 
-int insertList(List list, void *item) {
+int insertList(List *list, void *item) {
     /* Write item into buffer of the list
      * Item will either be User or Channel
      * Successful write will return 1;
