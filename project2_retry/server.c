@@ -9,6 +9,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <signal.h>
+#include <sys/time/h>
 #include "chatroom.h"
 
 #define UNUSED __attribute__ ((unused))
@@ -29,7 +31,7 @@ typedef struct list {
 
 typedef struct channel {
     char name[CHANNEL_MAX];
-    List *list;
+    List *user_list;
 } Channel;
 
 // Global variables
