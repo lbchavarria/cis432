@@ -287,7 +287,7 @@ void client_data_handler() {
     else {
         printf("Failed to receive data from client");
     }
-    free(cd);
+    //free(cd);
 }
 
 int main(UNUSED int argc, char *argv[]) { // Multiserver implementation will have UNUSED be removed
