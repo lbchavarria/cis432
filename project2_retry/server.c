@@ -260,20 +260,20 @@ void client_data_handler() {
     
     nread = recvfrom(sockid, (CData *)&cd, sizeof(CData), 0, (struct sockaddr *)&client_addr, &len);
     if (nread > 0) {
-        if ((CData *)&cd->type == LOGIN) {
-            user_login(cd);
+        if (((CData *)&cd)->type == LOGIN) {
+            user_login((CData *)&cd);
         }
-        else if ((CData *)&cd->type == LOGOUT) {
+        else if (((CData *)&cd)->type == LOGOUT) {
             user_logout();
         }
-        else if ((CData *)&cd->type == JOIN) {
-            user_join(cd);
+        else if (((CData *)&cd)->type == JOIN) {
+            user_join((CData *)&cd);
         }
-        else if ((CData *)&cd->type == LEAVE) {
-            user_leave(cd);
+        else if (((CData *)&cd)->type == LEAVE) {
+            user_leave((CData *)&cd);
         }
-        else if ((CData *)&cd->type == SAY) {
-            user_say(cd);
+        else if (((CData *)&cd)->type == SAY) {
+            user_say((CData *)&cd);
         }
     }
     else {
