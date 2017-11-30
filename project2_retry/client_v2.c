@@ -223,7 +223,7 @@ void server_data_handler() {
                 printf("%s\n", sd->user_list[i]);
             }
         }*/
-        else if (((struct text *)data)->type == TXT_ERROR) {
+        else if (((struct text *)data)->txt_type == TXT_ERROR) {
             printf("Error: %s", ((struct text_error *)data)->txt_error);
         }
     }
@@ -265,7 +265,7 @@ int main(UNUSED int argc, char *argv[]) {
     }
     
     while (1) {
-        txt = get_char_input();
+        get_char_input(txt);
         rt = setType(txt);
         if (rt == -1) {
             continue;
