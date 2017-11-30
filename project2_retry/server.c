@@ -127,12 +127,15 @@ void send_say(SData *sd) {
 }
 
 void user_login(CData *cd) {
+    printf("Start Login\n");
     int i;
     User new_user;
     strcpy(new_user.username, cd->username);
     new_user.user_addr = client_addr;
     new_user.isActive = 1;
+    printf("Check if Common exists\n");
     if (channel_list->isEmpty) {
+        printf("Create Common\n");
         Channel new_channel;
         strcpy(new_channel.name, "Common");
         new_channel.user_list = initList(50);
@@ -141,7 +144,9 @@ void user_login(CData *cd) {
             //Attempt to join other channels
             //If cannot join any channels send error message and return
         }
+        printf("Common created\n");
     }
+    printf("Add user\n");
     for (i = 0; i < channel_list->pos; i++) {
         if (strcmp(((Channel *)channel_list->buffer[i])->name, "Common") == 0) {
             if (insertList(((Channel *)channel_list->buffer[i])->user_list, &new_user) == 0) {
@@ -150,6 +155,7 @@ void user_login(CData *cd) {
             break;
         }
     }
+    printf("Done\n");
 }
 
 void user_logout() {
@@ -257,10 +263,12 @@ void client_data_handler() {
     int nread;
     void *cd;
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
-    
+    printf("Start\n");
     nread = recvfrom(sockid, (CData *)&cd, sizeof(CData), 0, (struct sockaddr *)&client_addr, &len);
     if (nread > 0) {
+        printf("Receive successful\n");
         if (((CData *)&cd)->type == LOGIN) {
+            printf("Login\n");
             user_login((CData *)&cd);
         }
         else if (((CData *)&cd)->type == LOGOUT) {
