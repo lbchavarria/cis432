@@ -263,7 +263,7 @@ void client_data_handler() {
     printf("1\n");
     int nread;
     printf("Pre-Start\n");
-    void *cd = (void *)malloc(sizeof(void));
+    void *cd;
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
     printf("Start\n");
     nread = recvfrom(sockid, (CData *)&cd, sizeof(CData), 0, (struct sockaddr *)&client_addr, &len);
@@ -289,8 +289,8 @@ void client_data_handler() {
     else {
         printf("Failed to receive data from client");
     }
-    printf("Pre-Free\n");
-    free(cd);
+    //printf("Pre-Free\n");
+    //free(cd);
     printf("FREE\n");
 }
 

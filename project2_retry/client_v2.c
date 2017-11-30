@@ -203,7 +203,7 @@ void server_data_handler() {
     printf("Start Receive\n");
     struct sockaddr_in from;
     int nread;
-    char r_txt[65536];
+    //char r_txt[65536];
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
     void *data;
     printf("Attempting receive\n");
