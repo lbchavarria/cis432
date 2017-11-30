@@ -119,7 +119,9 @@ void user_login(request_login *data) {
     }
     for (i = 0; i < channel_list->size; i++) {
         if (strcmp(((Channel *)channel_list->buffer[i])->name, "Common") == 0) {
-            insertList((Channel *)channel_list->buffer[i])->user_list, &user);
+            if (insertList(((Channel *)channel_list->buffer[i])->user_list, &user) == 0) {
+                //send error
+            }
             break;
         }
     }
@@ -130,7 +132,7 @@ void user_logout() {
     for (i = 0; i < channel_list->size; i++) {
         for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->size; j++) {
             if (((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
-                (User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->isActive = 0;
+                ((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->isActive = 0;
             }
         }
     }
@@ -143,7 +145,7 @@ void user_join(request_join *data) {
     for (i = 0; i < channel_list->size; i++) {
         if (strcmp(((Channel *)channel_list->buffer[i])->name, data->req_channel) == 0) {
             for (j = 0; j < channel_list->size; j++) {
-                for (k = 0; k < ((Channel *)channel_list->buffer[j])->size; k++) {
+                for (k = 0; k < ((Channel *)channel_list->buffer[j])->user_list->size; k++) {
                     if (((User *)((Channel *)channel_list->buffer[j])->user_list->buffer[k])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                         temp_user = ((User *)((Channel *)channel_list->buffer[j])->user_list->buffer[k]);
                         done = 1;
