@@ -204,7 +204,7 @@ void server_data_handler() {
     char r_txt[65536];
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
     void *data;
-    nread = recvfrom(sockid, data, sizeof(r_txt), 0, (struct sockaddr *)&from, &len);
+    nread = recvfrom(sockid, (struct text *)&data, 65536, 0, (struct sockaddr *)&from, &len);
     if (nread > 0) {
         if (((struct text *)data)->txt_type == TXT_SAY) {
             printf("[%s][%s]%s", ((struct text_say *)data)->txt_channel, ((struct text_say *)data)->txt_username, ((struct text_say *)data)->txt_text);
