@@ -22,29 +22,29 @@ void remove_spaces(char src[], char dst[]) {
      */
     int i;
     int j = 0;
-    for (i = 0; src[i] != '/0'; i++) {
+    for (i = 0; i < strlen(src); i++) {
         if (src[i] != ' ') {
             dst[j++] = src[i];
         }
     }
-    dst[j] = '/0';
+    //dst[j] = '\0';
 }
 
-void client_login() {
+void client_login(char *args[]) {
     /* Sends login data to the server
      * Server uses data to log client in
      */
     int retcode;
     request_login r_login;
     r_login.req_type = REQ_LOGIN;
-    strcpy(r_login.req_username, argv[3]);
+    strcpy(r_login.req_username, args[3]);
     retcode = sendto(sockid, &r_login, sizeof(struct request_login), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
     if (retcode <= -1) {
         printf("Login data failed to send\n");
     }
 }
 
-char[] get_char_input() {
+char* get_char_input() {
     /* Read the input from client
      * Store input into char array and return char array
      */
@@ -257,7 +257,7 @@ int main(UNUSED int argc, char *argv[]) {
         return -1;
     }
     
-    client_login();
+    client_login(argv);
     
     if (raw_mode() == -1) {
         printf("Raw mode failed\n");
