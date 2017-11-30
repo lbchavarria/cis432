@@ -209,7 +209,7 @@ void user_say(request_say *data) {
     strcpy(t_say.txt_channel, data->req_channel);
     strcpy(t_say.txt_text, data->req_text);
     printf("Enter for loop\n");
-    for (i = 0; i < channel_list->size; i++) {
+    for (i = 0; i < channel_list->pos; i++) {
         if (strcmp(((Channel *)channel_list->buffer[i])->name, data->req_channel) == 0) {
             printf("Found channel\n");
             for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->size; j++) {
