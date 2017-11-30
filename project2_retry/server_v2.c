@@ -236,9 +236,9 @@ void client_data_handler() {
     int nread;
     char r_txt[65536];
     void *data;
-    int len = sizeof(struct sockaddr_in);
+    //int len = sizeof(struct sockaddr_in);
     
-    nread = recvfrom(sockid, data, sizeof(r_txt), 0, (struct sockaddr *)&client_addr, &len);
+    nread = recvfrom(sockid, data, sizeof(r_txt), 0, (struct sockaddr *)&client_addr, sizeof(struct sockaddr_in));
     if (nread > 0) {
         if (((struct request *)&data)->req_type == REQ_LOGIN) {
             user_login((struct request_login *)&data);
