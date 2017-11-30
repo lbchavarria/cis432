@@ -88,7 +88,7 @@ void send_say(struct text_say t_say) {
     int retcode, i, j;
     for (i = 0; i < channel_list->pos; i++) {
         if (strcmp(t_say.txt_channel, ((Channel *)channel_list->buffer[i])->name) == 0) {
-            for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->size; j++) {
+            for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->pos; j++) {
                 if (((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->isActive) {
                     retcode = sendto(sockid, &t_say, sizeof(struct text_say), 0, (struct sockaddr *)&(((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr), sizeof(((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr));
                     if (retcode <= -1) {
@@ -131,7 +131,7 @@ void user_login(request_login *data) {
 void user_logout() {
     int i, j;
     for (i = 0; i < channel_list->pos; i++) {
-        for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->size; j++) {
+        for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->pos; j++) {
             if (((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                 ((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->isActive = 0;
             }
@@ -146,7 +146,7 @@ void user_join(request_join *data) {
     for (i = 0; i < channel_list->pos; i++) {
         if (strcmp(((Channel *)channel_list->buffer[i])->name, data->req_channel) == 0) {
             for (j = 0; j < channel_list->pos; j++) {
-                for (k = 0; k < ((Channel *)channel_list->buffer[j])->user_list->size; k++) {
+                for (k = 0; k < ((Channel *)channel_list->buffer[j])->user_list->pos; k++) {
                     if (((User *)((Channel *)channel_list->buffer[j])->user_list->buffer[k])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                         temp_user = ((User *)((Channel *)channel_list->buffer[j])->user_list->buffer[k]);
                         done = 1;
@@ -167,7 +167,7 @@ void user_join(request_join *data) {
     strcpy(new_channel.name, data->req_channel);
     new_channel.user_list = initList(50);
     for (i = 0; i < channel_list->pos; i++) {
-        for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->size; j++) {
+        for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->pos; j++) {
             if (((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                 temp_user = ((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j]);
                 done = 1;
@@ -190,7 +190,7 @@ void user_leave(request_leave *data) {
     int i, j;
     for (i = 0; i < channel_list->pos; i++) {
         if (strcmp(((Channel *)channel_list->buffer[i])->name, data->req_channel) == 0) {
-            for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->size; j++) {
+            for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->pos; j++) {
                 if (((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                     ((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->isActive = 0;
                     return;
@@ -212,7 +212,7 @@ void user_say(request_say *data) {
     for (i = 0; i < channel_list->pos; i++) {
         if (strcmp(((Channel *)channel_list->buffer[i])->name, data->req_channel) == 0) {
             printf("Found channel\n");
-            for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->size; j++) {
+            for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->pos; j++) {
                 if (((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                     strcpy(t_say.txt_username, ((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->username);
                     done = 1;
