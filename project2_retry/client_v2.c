@@ -34,21 +34,14 @@ void client_login(char *args[]) {
     /* Sends login data to the server
      * Server uses data to log client in
      */
-    printf("1\n");
     int retcode;
-    printf("2\n");
     request_login r_login;
-    printf("3\n");
     r_login.req_type = REQ_LOGIN;
-    printf("3\n");
     strcpy(r_login.req_username, args[3]);
-    printf("4\n");
     retcode = sendto(sockid, (void *)&r_login, sizeof(r_login), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
-    printf("5\n");
     if (retcode <= -1) {
         printf("Login data failed to send\n");
     }
-    printf("6\n");
 }
 
 void get_char_input(char dest[]) {
@@ -214,7 +207,7 @@ void server_data_handler() {
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
     void *data;
     printf("Attempting receive\n");
-    nread = recvfrom(sockid, (struct text *)&data, 65536, 0, (struct sockaddr *)&from, &len);
+    nread = recvfrom(sockid, (void *)&data, 65536, 0, (struct sockaddr *)&from, &len);
     if (nread > 0) {
         printf("Success\n");
         if (((struct text *)data)->txt_type == TXT_SAY) {
