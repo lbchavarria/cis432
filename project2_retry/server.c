@@ -152,6 +152,7 @@ void user_login(CData *cd) {
             if (insertList(((Channel *)channel_list->buffer[i])->user_list, &new_user) == 0) {
                 //send error
             }
+            printf("User added\n");
             break;
         }
     }
@@ -260,7 +261,6 @@ void user_say(CData *cd) {
 }
 
 void client_data_handler() {
-    printf("1\n");
     int nread;
     printf("Pre-Start\n");
     CData cd;
@@ -274,15 +274,19 @@ void client_data_handler() {
             user_login(&cd);
         }
         else if (cd.type == LOGOUT) {
+            printf("Logout\n");
             user_logout();
         }
         else if (cd.type == JOIN) {
+            printf("Join\n");
             user_join(&cd);
         }
         else if (cd.type == LEAVE) {
+            printf("Leave\n");
             user_leave(&cd);
         }
         else if (cd.type == SAY) {
+            printf("Say\n");
             user_say(&cd);
         }
     }
