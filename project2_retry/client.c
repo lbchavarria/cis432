@@ -187,8 +187,8 @@ void server_data_handler() {
     void *sd;
     nread = recvfrom(sockid, (SData *)&sd, sizeof(SData), 0, (struct sockaddr *)&from, &len);
     if (nread > 0) {
-        if ((SData *)&sd->type == S_SAY) {
-            printf("[%s][%s]%s", (SData *)&sd->channel, (SData *)&sd->username, (SData *)&sd->message);
+        if (((SData *)&sd)->type == S_SAY) {
+            printf("[%s][%s]%s", ((SData *)&sd)->channel, ((SData *)&sd)->username, ((SData *)&sd)->message);
         }
         /*else if (sd->type == S_LIST) {
             int i;
@@ -204,8 +204,8 @@ void server_data_handler() {
                 printf("%s\n", sd->user_list[i]);
             }
         }*/
-        else if ((SData *)&sd->type == S_ERROR) {
-            printf("Error: %s", (SData *)&sd->message);
+        else if (((SData *)&sd)->type == S_ERROR) {
+            printf("Error: %s", ((SData *)&sd)->message);
         }
     }
     else {
