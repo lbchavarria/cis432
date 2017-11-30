@@ -205,7 +205,7 @@ void server_data_handler() {
             }
         }*/
         else if (sd.type == S_ERROR) {
-            printf("Error: %s", (sd.message);
+            printf("Error: %s", sd.message);
         }
     }
     else {
