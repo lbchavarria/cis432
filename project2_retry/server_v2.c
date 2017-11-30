@@ -236,7 +236,7 @@ void client_data_handler() {
     int nread;
     char r_txt[65536];
     void *data;
-    unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
+    int len = sizeof(struct sockaddr_in);
     
     nread = recvfrom(sockid, data, sizeof(r_txt), 0, (struct sockaddr *)&client_addr, &len);
     if (nread > 0) {
