@@ -29,13 +29,13 @@ typedef struct client_data {
     char username[USERNAME_MAX+1];
     char channel[CHANNEL_MAX+1];
     char message[MESSAGE_MAX+1];
-} CData packed;
+} CData;
 
 typedef struct server_data {
     s_type type;
     char username[USERNAME_MAX+1];
     char channel[CHANNEL_MAX+1];
     char message[MESSAGE_MAX+1];
-} SData packed;
+} SData;
 
 #endif /* chatroom_h */

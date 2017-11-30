@@ -22,22 +22,22 @@ void remove_spaces(char src[], char dst[]) {
      */
     int i;
     int j = 0;
-    for (i = 0; src[i] != '/0'; i++) {
+    for (i = 0; src[i] != '\0'; i++) {
         if (src[i] != ' ') {
             dst[j++] = src[i];
         }
     }
-    dst[j] = '/0';
+    dst[j] = '\0';
 }
 
-void client_login() {
+void client_login(char *args[]) {
     /* Sends login data to the server
      * Server uses data to log client in
      */
     int retcode;
     CData *cd = (CData *)malloc(sizeof(CData));
     cd->type = LOGIN;
-    strcpy(cd->username, argv[3]);
+    strcpy(cd->username, args[3]);
     strcpy(current_channel, "Common");
     retcode = sendto(sockid, cd, sizeof(CData), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
     if (retcode <= -1) {
@@ -46,7 +46,7 @@ void client_login() {
     free(cd);
 }
 
-char[] get_char_input() {
+void get_char_input(char dest[]) {
     /* Read the input from client
      * Store input into char array and return char array
      */
@@ -65,7 +65,7 @@ char[] get_char_input() {
         }
         else {
             if (i == MESSAGE_MAX) {
-                txt[i] = '/0';
+                txt[i] = '\0';
                 break;
             }
             putchar(c);
@@ -73,7 +73,7 @@ char[] get_char_input() {
             i++;
         }
     }
-    return txt;
+    strcpy(dest, txt);
 }
 
 m_type setType(char txt[]) {
@@ -95,7 +95,7 @@ m_type setType(char txt[]) {
         strcpy(current_channel, "");
         for (i = 0; i < (strlen(txt) - strlen("/join ")); i++) {
             if (i == CHANNEL_MAX) {
-                current_channel[i] == '/0';
+                current_channel[i] == '\0';
                 break;
             }
             current_channel[i] = txt[strlen("/join ")+i];
@@ -111,7 +111,7 @@ m_type setType(char txt[]) {
         strcpy(current_channel, "");
         for (i = 0; i < (strlen(txt) - strlne("/leave ")); i++) {
             if (i == CHANNEL_MAX) {
-                current_channel[i] == '/0';
+                current_channel[i] == '\0';
                 break;
             }
             current_channel[i] = txt[strlen("/leave ")+i];
@@ -130,7 +130,7 @@ m_type setType(char txt[]) {
         strcpy(temp_channel, "");
         for (i = 0; i < (strlen(txt) - strlen("/who ")); i++) {
             if (i == CHANNEL_MAX) {
-                temp_channel[i] == '/0';
+                temp_channel[i] == '\0';
                 break;
             }
             temp_channel[i] = txt[strlen("/who ")+i];
@@ -146,7 +146,7 @@ m_type setType(char txt[]) {
         strcpy(current_channel, "");
         for (i = 0; i < (strlen(txt) - strlen("/switch ")); i++) {
             if (i == CHANNEL_MAX) {
-                current_channel[i] == '/0';
+                current_channel[i] == '\0';
                 break;
             }
             current_channel[i] = txt[strlen("/switch ")+i];
@@ -239,7 +239,7 @@ int main(UNUSED int argc, char *argv[]) {
         return -1;
     }
     
-    client_login();
+    client_login(argv);
     
     if (raw_mode() == -1) {
         printf("Raw mode failed\n");
@@ -247,7 +247,7 @@ int main(UNUSED int argc, char *argv[]) {
     }
     
     while (1) {
-        txt = get_char_input();
+        get_char_input(txt);
         mt = setType(txt);
         if (mt == SWITCH) {
             continue;
