@@ -288,6 +288,7 @@ void client_data_handler() {
     else {
         printf("Failed to receive data from client");
     }
+    printf("Pre-Free\n");
     free(cd);
     printf("FREE\n");
 }
