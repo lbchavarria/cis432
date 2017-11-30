@@ -281,7 +281,7 @@ int main(int argc, char *argv[]) {
     
     bzero((char *)&my_addr, sizeof(my_addr));
     my_addr.sin_family = AF_INET;
-    my_addr.sin_addr.s_addr = htons(INADDR_ANY);
+    my_addr.sin_addr.s_addr = INADDR_ANY;
     my_addr.sin_port = htons(atoi(argv[2]));
     if (bind(sockid, (struct sockaddr *)&my_addr, sizeof(my_addr)) < 0) {
         printf("Server bind failed\n");
