@@ -38,7 +38,7 @@ void client_login(char *args[]) {
     request_login r_login;
     r_login.req_type = REQ_LOGIN;
     strcpy(r_login.req_username, args[3]);
-    retcode = sendto(sockid, &r_login, sizeof(struct request_login), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    retcode = sendto(sockid, (void *)&r_login, sizeof(struct request_login), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
     if (retcode <= -1) {
         printf("Login data failed to send\n");
     }
