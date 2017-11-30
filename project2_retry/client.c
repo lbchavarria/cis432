@@ -109,7 +109,7 @@ c_type setType(char txt[]) {
             return SAY;
         }
         strcpy(current_channel, "");
-        for (i = 0; i < (strlen(txt) - strlne("/leave ")); i++) {
+        for (i = 0; i < (strlen(txt) - strlen("/leave ")); i++) {
             if (i == CHANNEL_MAX) {
                 current_channel[i] == '\0';
                 break;
@@ -239,7 +239,7 @@ int main(UNUSED int argc, char *argv[]) {
         return -1;
     }
     
-    strcpy(user_name, argv[3])
+    strcpy(user_name, argv[3]);
     
     client_login(argv);
     
