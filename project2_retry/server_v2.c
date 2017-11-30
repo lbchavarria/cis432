@@ -102,6 +102,7 @@ void send_say(struct text_say t_say) {
 }
 
 void user_login(request_login *data) {
+    printf("Start\n");
     int i;
     User new_user;
     strcpy(new_user.username, data->req_username);
@@ -240,7 +241,9 @@ void client_data_handler() {
     
     nread = recvfrom(sockid, (struct request *)&data, 65536, 0, (struct sockaddr *)&client_addr, &len);
     if (nread > 0) {
-        if (data->req_type == REQ_LOGIN) {
+        printf("Read successful\n");
+        if (((struct request *)&data->req_type == REQ_LOGIN) {
+            printf("Login\n");
             user_login((struct request_login *)&data);
         }
         else if (((struct request *)&data)->req_type == REQ_LOGOUT) {
