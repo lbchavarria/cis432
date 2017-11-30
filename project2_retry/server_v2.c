@@ -242,7 +242,7 @@ void client_data_handler() {
     nread = recvfrom(sockid, (struct request *)&data, 65536, 0, (struct sockaddr *)&client_addr, &len);
     if (nread > 0) {
         printf("Read successful\n");
-        if (((struct request *)&data->req_type == REQ_LOGIN) {
+        if (((struct request *)&data)->req_type == REQ_LOGIN) {
             printf("Login\n");
             user_login((struct request_login *)&data);
         }
