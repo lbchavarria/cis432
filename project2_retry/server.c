@@ -1,4 +1,4 @@
-/* The List struct and funtions, initList(), destroyList(), and writeList() are not mine
+/* The List struct and funtions, initList(), destroyList(), and insertList() are not mine
  * The above struct and functions are based on code written by Peter Dickman and revised by Joe Sventek
  */
 
@@ -62,7 +62,7 @@ void destroyList(List *list) {
     free(list);
 }
 
-int writeList(List list, void *item) {
+int insertList(List list, void *item) {
     /* Write item into buffer of the list
      * Item will either be User or Channel
      * Successful write will return 1;
