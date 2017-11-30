@@ -13,7 +13,7 @@
 #define UNUSED __attribute__ ((unused))
 
 int sockid;
-struct sockaddr_in server_addr, from;
+struct sockaddr_in server_addr;
 char current_channel[CHANNEL_MAX], temp_channel[CHANNEL_MAX];
 
 void remove_spaces(char src[], char dst[]) {
@@ -201,12 +201,13 @@ void server_data_handler() {
      * Handles sd depending on type
      */
     printf("Start Receive\n");
+    struct sockaddr_in from;
     int nread;
     char r_txt[65536];
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
     void *data;
     printf("Attempting receive\n");
-    nread = recvfrom(sockid, (struct text *)&data, 65536, 0, (struct sockaddr *)&server_addr, &len);
+    nread = recvfrom(sockid, (struct text *)&data, 65536, 0, (struct sockaddr *)&from, &len);
     if (nread > 0) {
         printf("Success\n");
         if (((struct text *)data)->txt_type == TXT_SAY) {
