@@ -21,6 +21,10 @@ typedef struct user {
     int isActive;
 } User;
 
+typedef struct server_info {
+    sockaddr_in server_addr;
+} SInfo;
+
 typedef struct list {
     int size;
     int pos;
