@@ -260,6 +260,7 @@ void user_say(CData *cd) {
 }
 
 void client_data_handler() {
+    printf("1\n");
     int nread;
     printf("Pre-Start\n");
     void *cd;
