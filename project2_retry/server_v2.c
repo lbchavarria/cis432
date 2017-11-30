@@ -34,7 +34,7 @@ typedef struct channel {
 // Global Variables
 int sockid;
 struct sockaddr_in client_addr;
-List *channel_list;
+List *channel_list, *server_list;
 
 List *initList(int size) {
     List *newlist = (List *)malloc(sizeof(List));
@@ -78,6 +78,27 @@ void timer_handler(int signum) {
     static int count = 0;
     static char temp_channel[CHANNEL_MAX];
     
+}
+
+void send_error(struct text_error t_error) {
+    
+}
+
+void send_say(struct text_say t_say) {
+    int retcode, i, j;
+    for (i = 0; i < channel_list->size; i++) {
+        if (strcmp(t_say.txt_channel, channel_list->buffer[i]->name) == 0) {
+            for (j = 0; j < channel_list->buffer[i]->user_list->size; j++) {
+                if (channel_list->buffer[i]->user_list->buffer[j]->isActive) {
+                    retcode = sendto(sockid, &t_say, sizeof(struct text_say), 0, (struct sockaddr *)&(channel_list->buffer[i]->user_list->buffer[j]->user_addr), sizeof(channel_list->buffer[i]->user_list->buffer[j]->user_addr));
+                    if (retcode <= -1) {
+                        printf("Message failed to send to user %s\n", channel_list->buffer[i]->user_list->buffer[j]->username);
+                    }
+                }
+            }
+            break;
+        }
+    }
 }
 
 void user_login(request_login *data) {
@@ -142,6 +163,18 @@ void user_join(request_join *data) {
     Channel new_channel;
     strcpy(new_channel.name, data->req_channel);
     new_channel.user_list = initList(50);
+    for (i = 0; i < channel_list->size; i++) {
+        for (j = 0; j < channel_list->buffer[i]->size; j++) {
+            if (channel_list->buffer[i]->user_list->buffer[j]->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
+                temp_user = channel_list->buffer[i]->user_list->buffer[j];
+                done = 1
+                break;
+            }
+        }
+        if (done) {
+            break;
+        }
+    }
     if (insertList(channel.user_list, temp_user) == 0) {
         //send error
     }
@@ -165,6 +198,27 @@ void user_leave(request_leave *data) {
 }
 
 void user_say(request_say *data) {
+    int i, j;
+    int done = 0;
+    struct text_say t_say;
+    t_say.txt_type = TXT_SAY;
+    strcpy(t_say.txt_channel, data->req_channel);
+    strcpy(t_say.txt_text, data->req_text);
+    for (i = 0; i < channel_list->size, i++) {
+        if (strcmp(channel_list->buffer[i]->name, data->req_channel) == 0) {
+            for (j = 0; j < channel_list->buffer[i]->user_list->size; j++) {
+                if (channel_list->buffer[i]->user_list->buffer[j]->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
+                    strcpy(t_say.txt_username, channel_list->buffer[i]->user_list->buffer[j]->username);
+                    done = 1;
+                    break;
+                }
+            }
+            if (done) {
+                break;
+            }
+        }
+    }
+    send_say(t_say);
     
 }
 
@@ -233,7 +287,7 @@ int main(int argc, char *argv[]) {
     }
     
     if (argc > 2) {
-        List *server_list = initServerList(argc, argv);
+        server_list = initServerList(argc, argv);
     }
     
     memset(&sa, 0, sizeof(sa));
