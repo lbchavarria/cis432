@@ -263,7 +263,7 @@ void client_data_handler() {
     printf("1\n");
     int nread;
     printf("Pre-Start\n");
-    CData *cd;
+    CData *cd = (CData *)malloc(sizeof(CData));
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
     printf("Start\n");
     nread = recvfrom(sockid, &cd, sizeof(CData), 0, (struct sockaddr *)&client_addr, &len);
