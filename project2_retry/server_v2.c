@@ -68,7 +68,7 @@ List *initServerList(int arg, char *args[]) {
     bzero((char *)&(s_info.server_addr), sizeof(s_info.server_addr));
     s_info.server_addr.sin_family = AF_INET;
     s_info.server_addr.sin_addr.s_addr = htons(INADDR_ANY);
-    for (i = 3, i < arg, i++) {
+    for (i = 3; i < arg; i++) {
         s_info.server_addr.sin_port = htons(atoi(args[++i]));
         insertList(newlist, &s_info);
     }
