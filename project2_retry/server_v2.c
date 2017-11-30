@@ -6,6 +6,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <signal.h>
+#include <unistd.h>
 #include <sys/time.h>
 #include "duckchat.h"
 
