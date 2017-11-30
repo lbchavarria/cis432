@@ -247,15 +247,19 @@ void client_data_handler() {
             user_login((struct request_login *)&data);
         }
         else if (((struct request *)&data)->req_type == REQ_LOGOUT) {
+            printf("Logout\n");
             user_logout();
         }
         else if (((struct request *)&data)->req_type == REQ_JOIN) {
+            printf("Join\n");
             user_join((struct request_join *)&data);
         }
         else if (((struct request *)&data)->req_type == REQ_LEAVE) {
+            printf("Leave\n");
             user_leave((struct request_leave *)&data);
         }
         else if (((struct request *)&data)->req_type == REQ_SAY) {
+            printf("Say\n");
             user_say((struct request_say *)&data);
         }
         /*else if (((struct request *)&data)->req_type == REQ_LIST) {
