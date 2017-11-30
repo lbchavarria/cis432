@@ -241,7 +241,7 @@ int main(UNUSED int argc, char *argv[]) {
     
     strcpy(user_name, argv[3]);
     
-    client_login(argv);
+    client_login();
     
     if (raw_mode() == -1) {
         printf("Raw mode failed\n");
