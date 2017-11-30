@@ -201,18 +201,21 @@ void user_leave(request_leave *data) {
 }
 
 void user_say(request_say *data) {
+    printf("Start Say\n");
     int i, j;
     int done = 0;
     struct text_say t_say;
     t_say.txt_type = TXT_SAY;
     strcpy(t_say.txt_channel, data->req_channel);
     strcpy(t_say.txt_text, data->req_text);
+    printf("Enter for loop\n");
     for (i = 0; i < channel_list->size; i++) {
         if (strcmp(((Channel *)channel_list->buffer[i])->name, data->req_channel) == 0) {
             for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->size; j++) {
                 if (((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                     strcpy(t_say.txt_username, ((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->username);
                     done = 1;
+                    printf("Obtained\n");
                     break;
                 }
             }
@@ -221,6 +224,7 @@ void user_say(request_say *data) {
             }
         }
     }
+    printf("Send Say\n");
     send_say(t_say);
     
 }
