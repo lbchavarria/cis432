@@ -7,11 +7,11 @@ LOADLIBES= -lnsl
 
 all: client server
 
-client: client_v2.c raw.c
-	$(CC) client_v2.c raw.c $(LOADLIBES) $(CFLAGS) -o client
+client: client.c raw.c
+	$(CC) client.c raw.c $(LOADLIBES) $(CFLAGS) -o client
 
-server: server_v2.c 
-	$(CC) server_v2.c $(LOADLIBES) $(CFLAGS) -o server
+server: server.c 
+	$(CC) server.c $(LOADLIBES) $(CFLAGS) -o server
 
 clean:
 	rm -f client server *.o

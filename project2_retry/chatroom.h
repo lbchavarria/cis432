@@ -33,10 +33,9 @@ typedef struct client_data {
 
 typedef struct server_data {
     s_type type;
-    int size;
+    char username[USERNAME_MAX+1];
+    char channel[CHANNEL_MAX+1];
     char message[MESSAGE_MAX+1];
-    char *user_list[USERNAME_MAX+1];
-    char *channel_list[CHANNEL_MAX+1];
 } SData packed;
 
 #endif /* chatroom_h */

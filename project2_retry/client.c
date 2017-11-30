@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "chatroom.h"
+#include "raw.h"
 
 #define UNUSED __attribute__ ((unused))
 
@@ -240,6 +241,11 @@ int main(UNUSED int argc, char *argv[]) {
     
     client_login();
     
+    if (raw_mode() == -1) {
+        printf("Raw mode failed\n");
+        return -1;
+    }
+    
     while (1) {
         txt = get_char_input();
         mt = setType(txt);
@@ -253,6 +259,7 @@ int main(UNUSED int argc, char *argv[]) {
         server_data_handler();
     }
     
+    cooked_mode();
     shutdown(sockid, 2);
     return 0;
 }
