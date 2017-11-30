@@ -261,6 +261,7 @@ void user_say(CData *cd) {
 
 void client_data_handler() {
     int nread;
+    printf("Pre-Start\n");
     void *cd;
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
     printf("Start\n");
@@ -287,7 +288,8 @@ void client_data_handler() {
     else {
         printf("Failed to receive data from client");
     }
-    //free(cd);
+    free(cd);
+    printf("FREE\n");
 }
 
 int main(UNUSED int argc, char *argv[]) { // Multiserver implementation will have UNUSED be removed
