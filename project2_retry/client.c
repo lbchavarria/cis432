@@ -170,7 +170,7 @@ void client_data_handler(char txt[], c_type ct) {
     //}
     strcpy(cd->username, user_name);
     strcpy(cd->message, txt);
-    printf("%d", ct);
+    printf("%d\n", ct);
     cd->type = ct;
     printf("Send\n");
     retcode = sendto(sockid, cd, sizeof(CData), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
@@ -187,6 +187,7 @@ void server_data_handler() {
     int nread;
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
     SData sd;
+    printf("Start receive\n");
     nread = recvfrom(sockid, &sd, sizeof(SData), 0, (struct sockaddr *)&server_addr, &len);
     printf("Finished\n");
     if (nread > 0) {
