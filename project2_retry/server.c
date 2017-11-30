@@ -255,24 +255,24 @@ void user_say(CData *cd) {
 
 void client_data_handler() {
     int nread;
-    CData *cd;
+    void *cd;
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
     
-    nread = recvfrom(sockid, cd, sizeof(CData), 0, (struct sockaddr *)&client_addr, &len);
+    nread = recvfrom(sockid, (CData *)&cd, sizeof(CData), 0, (struct sockaddr *)&client_addr, &len);
     if (nread > 0) {
-        if (cd->type == LOGIN) {
+        if ((CData *)&cd->type == LOGIN) {
             user_login(cd);
         }
-        else if (cd->type == LOGOUT) {
+        else if ((CData *)&cd->type == LOGOUT) {
             user_logout();
         }
-        else if (cd->type == JOIN) {
+        else if ((CData *)&cd->type == JOIN) {
             user_join(cd);
         }
-        else if (cd->type == LEAVE) {
+        else if ((CData *)&cd->type == LEAVE) {
             user_leave(cd);
         }
-        else if (cd->type == SAY) {
+        else if ((CData *)&cd->type == SAY) {
             user_say(cd);
         }
     }
