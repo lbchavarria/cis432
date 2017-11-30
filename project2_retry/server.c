@@ -10,7 +10,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <signal.h>
-#include <sys/time/h>
+#include <sys/time.h>
 #include "chatroom.h"
 
 #define UNUSED __attribute__ ((unused))
