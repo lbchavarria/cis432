@@ -145,7 +145,6 @@ void user_login(CData *cd) {
             //If cannot join any channels send error message and return
         }
         printf("Common created\n");
-        destroyList(new_channel.user_list);
     }
     printf("Add user\n");
     for (i = 0; i < channel_list->pos; i++) {
@@ -264,7 +263,7 @@ void client_data_handler() {
     printf("1\n");
     int nread;
     printf("Pre-Start\n");
-    void *cd;
+    void *cd = (void *)malloc(sizeof(void));
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
     printf("Start\n");
     nread = recvfrom(sockid, (CData *)&cd, sizeof(CData), 0, (struct sockaddr *)&client_addr, &len);
@@ -290,8 +289,8 @@ void client_data_handler() {
     else {
         printf("Failed to receive data from client");
     }
-    /*printf("Pre-Free\n");
-    free(cd);*/
+    printf("Pre-Free\n");
+    free(cd);
     printf("FREE\n");
 }
 
