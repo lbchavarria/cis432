@@ -207,7 +207,7 @@ void server_data_handler() {
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
     void *data;
     printf("Attempting receive\n");
-    nread = recvfrom(sockid, (void *)&data, 65536, 0, (struct sockaddr *)&from, &len);
+    nread = recvfrom(sockid, &data, 65536, 0, (struct sockaddr *)&from, &len);
     if (nread > 0) {
         printf("Success\n");
         if (((struct text *)data)->txt_type == TXT_SAY) {

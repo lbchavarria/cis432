@@ -251,7 +251,7 @@ void client_data_handler() {
     void *data;
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
     
-    nread = recvfrom(sockid, (void *)&data, 65536, 0, (struct sockaddr *)&client_addr, &len);
+    nread = recvfrom(sockid, &data, 65536, 0, (struct sockaddr *)&client_addr, &len);
     if (nread > 0) {
         printf("Read successful\n");
         if (((struct request *)&data)->req_type == REQ_LOGIN) {
