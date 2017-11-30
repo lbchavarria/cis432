@@ -118,7 +118,7 @@ void user_login(request_login *data) {
         }
     }
     for (i = 0; i < channel_list->size; i++) {
-        if (strcmp((Channel *)channel_list->buffer[i])->name, "Common") == 0) {
+        if (strcmp(((Channel *)channel_list->buffer[i])->name, "Common") == 0) {
             insertList((Channel *)channel_list->buffer[i])->user_list, &user);
             break;
         }
@@ -128,8 +128,8 @@ void user_login(request_login *data) {
 void user_logout() {
     int i, j;
     for (i = 0; i < channel_list->size; i++) {
-        for (j = 0; j < ((Channel *)channel_list->buffer[i])->size; j++) {
-            if ((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
+        for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->size; j++) {
+            if (((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                 (User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->isActive = 0;
             }
         }
@@ -141,7 +141,7 @@ void user_join(request_join *data) {
     int done = 0;
     User *temp_user;
     for (i = 0; i < channel_list->size; i++) {
-        if (strcmp((Channel *)channel_list->buffer[i])->name, data->req_channel) == 0) {
+        if (strcmp(((Channel *)channel_list->buffer[i])->name, data->req_channel) == 0) {
             for (j = 0; j < channel_list->size; j++) {
                 for (k = 0; k < ((Channel *)channel_list->buffer[j])->size; k++) {
                     if (((User *)((Channel *)channel_list->buffer[j])->user_list->buffer[k])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
@@ -164,10 +164,10 @@ void user_join(request_join *data) {
     strcpy(new_channel.name, data->req_channel);
     new_channel.user_list = initList(50);
     for (i = 0; i < channel_list->size; i++) {
-        for (j = 0; j < ((Channel *)channel_list->buffer[i])->size; j++) {
+        for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->size; j++) {
             if (((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                 temp_user = ((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j]);
-                done = 1
+                done = 1;
                 break;
             }
         }
@@ -175,17 +175,17 @@ void user_join(request_join *data) {
             break;
         }
     }
-    if (insertList(channel.user_list, temp_user) == 0) {
+    if (insertList(new_channel.user_list, temp_user) == 0) {
         //send error
     }
-    if (insertList(channel_list, new_channel) == 0) {
+    if (insertList(channel_list, &new_channel) == 0) {
         //send error that channel_list is full
     }
 }
 
 void user_leave(request_leave *data) {
     int i, j;
-    for (i = 0; i < channel_list->size, i++) {
+    for (i = 0; i < channel_list->size; i++) {
         if (strcmp(((Channel *)channel_list->buffer[i])->name, data->req_channel) == 0) {
             for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->size; j++) {
                 if (((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
@@ -204,7 +204,7 @@ void user_say(request_say *data) {
     t_say.txt_type = TXT_SAY;
     strcpy(t_say.txt_channel, data->req_channel);
     strcpy(t_say.txt_text, data->req_text);
-    for (i = 0; i < channel_list->size, i++) {
+    for (i = 0; i < channel_list->size; i++) {
         if (strcmp(((Channel *)channel_list->buffer[i])->name, data->req_channel) == 0) {
             for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->size; j++) {
                 if (((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
