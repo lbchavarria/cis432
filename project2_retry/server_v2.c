@@ -238,7 +238,7 @@ void client_data_handler() {
     void *data;
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
     
-    nread = recvfrom(sockid, data, 65536, 0, (struct sockaddr *)&client_addr, &len);
+    nread = recvfrom(sockid, (struct request *)&data, 65536, 0, (struct sockaddr *)&client_addr, &len);
     if (nread > 0) {
         if (((struct request *)&data)->req_type == REQ_LOGIN) {
             user_login((struct request_login *)&data);
@@ -279,9 +279,9 @@ int main(int argc, char *argv[]) {
         return -1;
     }
     
-    bzero((char *)&my_addr, sizeof(my_addr));
+    memset((char *)&my_addr, sizeof(my_addr));
     my_addr.sin_family = AF_INET;
-    my_addr.sin_addr.s_addr = INADDR_ANY;
+    my_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     my_addr.sin_port = htons(atoi(argv[2]));
     if (bind(sockid, (struct sockaddr *)&my_addr, sizeof(my_addr)) < 0) {
         printf("Server bind failed\n");
