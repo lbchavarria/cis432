@@ -87,7 +87,7 @@ void send_error(struct text_error t_error) {
 
 void send_say(struct text_say t_say) {
     printf("Start send\n");
-    sleep(1);
+    //sleep(1);
     int retcode, i, j;
     for (i = 0; i < channel_list->pos; i++) {
         if (strcmp(t_say.txt_channel, ((Channel *)channel_list->buffer[i])->name) == 0) {
