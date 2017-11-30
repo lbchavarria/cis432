@@ -188,7 +188,7 @@ void server_data_handler() {
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
     SData sd;
     printf("Start receive\n");
-    nread = recvfrom(sockid, &sd, sizeof(SData), 0, (struct sockaddr *)&server_addr, &len);
+    nread = recvfrom(sockid, &sd, sizeof(SData), 0, (struct sockaddr *)&from, &len);
     printf("Finished\n");
     if (nread > 0) {
         if (sd.type == S_SAY) {
