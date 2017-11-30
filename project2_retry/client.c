@@ -14,7 +14,7 @@
 
 int sockid;
 struct sockaddr_in server_addr, from;
-char current_channel[CHANNEL_MAX+1], temp_channel[CHANNEL_MAX+1];
+char current_channel[CHANNEL_MAX+1], temp_channel[CHANNEL_MAX+1], user_name[USERNAME_MAX+1];
 
 void remove_spaces(char src[], char dst[]) {
     /* A funtion to remove white space
@@ -30,14 +30,14 @@ void remove_spaces(char src[], char dst[]) {
     dst[j] = '\0';
 }
 
-void client_login(char *args[]) {
+void client_login() {
     /* Sends login data to the server
      * Server uses data to log client in
      */
     int retcode;
     CData *cd = (CData *)malloc(sizeof(CData));
     cd->type = LOGIN;
-    strcpy(cd->username, args[3]);
+    strcpy(cd->username, user_name);
     strcpy(current_channel, "Common");
     retcode = sendto(sockid, cd, sizeof(CData), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
     if (retcode <= -1) {
@@ -76,9 +76,9 @@ void get_char_input(char dest[]) {
     strcpy(dest, txt);
 }
 
-m_type setType(char txt[]) {
+c_type setType(char txt[]) {
     /* Reads txt for exceptions
-     * Returns m_type based on exception
+     * Returns c_type based on exception
      * Returns SAY if there's certain exceptions are missing a channel name
      * Otherwise returns SAY
      */
@@ -156,21 +156,21 @@ m_type setType(char txt[]) {
     return SAY;
 }
 
-void client_data_handler(char txt[], m_type mt) {
+void client_data_handler(char txt[], c_type ct) {
     /* Stores appropriate data into cd
      * Sends cd to server
      */
     int retcode;
     CData *cd = (CData *)malloc(sizeof(CData));
-    if (mt = WHO) {
+    if (ct = WHO) {
         strcpy(cd->channel, temp_channel);
     }
     else {
         strcpy(cd->channel, current_channel);
     }
-    strcpy(cd->username, argv[3]);
+    strcpy(cd->username, user_name);
     strcpy(cd->message, txt);
-    cd->type = mt;
+    cd->type = ct;
     retcode = sendto(sockid, cd, sizeof(CData), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
     if (retcode <= -1) {
         printf("Client failed to send appropriate data to server\n");
@@ -188,9 +188,9 @@ void server_data_handler() {
     nread = recvfrom(sockid, sd, sizeof(SData), 0, (struct sockaddr *)&from, &len);
     if (nread > 0) {
         if (sd->type == S_SAY) {
-            printf("[%s][%s]%s", sd->channel_list[0], sd->user_list[0], sd->message);
+            printf("[%s][%s]%s", sd->channel, sd->username, sd->message);
         }
-        else if (sd->type == S_LIST) {
+        /*else if (sd->type == S_LIST) {
             int i;
             printf("Existing channels:\n");
             for (i = 0; i < sd->size; i++) {
@@ -203,7 +203,7 @@ void server_data_handler() {
             for (i = 0; i < sd->size; i++) {
                 printf("%s\n", sd->user_list[i]);
             }
-        }
+        }*/
         else if (sd->type == S_ERROR) {
             printf("Error: %s", sd->message);
         }
@@ -216,7 +216,7 @@ void server_data_handler() {
 
 int main(UNUSED int argc, char *argv[]) {
     char txt[MESSAGE_MAX+1];
-    m_type mt;
+    c_type ct;
     struct hostent *hp;
     
     sockid = socket(AF_INET, SOCK_DGRAM, 0);
@@ -239,6 +239,8 @@ int main(UNUSED int argc, char *argv[]) {
         return -1;
     }
     
+    strcpy(user_name, argv[3])
+    
     client_login(argv);
     
     if (raw_mode() == -1) {
@@ -248,12 +250,12 @@ int main(UNUSED int argc, char *argv[]) {
     
     while (1) {
         get_char_input(txt);
-        mt = setType(txt);
-        if (mt == SWITCH) {
+        ct = setType(txt);
+        if (ct == SWITCH) {
             continue;
         }
-        client_data_handler(txt, mt);
-        if (mt == LOGOUT) {
+        client_data_handler(txt, ct);
+        if (ct == LOGOUT) {
             break;
         }
         server_data_handler();
