@@ -186,8 +186,9 @@ void server_data_handler() {
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
     SData sd;
     nread = recvfrom(sockid, &sd, sizeof(SData), 0, (struct sockaddr *)&from, &len);
+    printf("Finished\n");
     if (nread > 0) {
-        if (((SData *)&sd)->type == S_SAY) {
+        if (sd.type == S_SAY) {
             printf("[%s][%s]%s", sd.channel, sd.username, sd.message);
         }
         /*else if (sd->type == S_LIST) {
