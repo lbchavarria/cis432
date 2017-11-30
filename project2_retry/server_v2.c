@@ -86,7 +86,7 @@ void send_error(struct text_error t_error) {
 
 void send_say(struct text_say t_say) {
     int retcode, i, j;
-    for (i = 0; i < channel_list->size; i++) {
+    for (i = 0; i < channel_list->pos; i++) {
         if (strcmp(t_say.txt_channel, ((Channel *)channel_list->buffer[i])->name) == 0) {
             for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->size; j++) {
                 if (((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->isActive) {
@@ -118,7 +118,7 @@ void user_login(request_login *data) {
             //If cannot join any channels send error message and return
         }
     }
-    for (i = 0; i < channel_list->size; i++) {
+    for (i = 0; i < channel_list->pos; i++) {
         if (strcmp(((Channel *)channel_list->buffer[i])->name, "Common") == 0) {
             if (insertList(((Channel *)channel_list->buffer[i])->user_list, &new_user) == 0) {
                 //send error
@@ -130,7 +130,7 @@ void user_login(request_login *data) {
 
 void user_logout() {
     int i, j;
-    for (i = 0; i < channel_list->size; i++) {
+    for (i = 0; i < channel_list->pos; i++) {
         for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->size; j++) {
             if (((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                 ((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->isActive = 0;
@@ -143,9 +143,9 @@ void user_join(request_join *data) {
     int i, j, k;
     int done = 0;
     User *temp_user;
-    for (i = 0; i < channel_list->size; i++) {
+    for (i = 0; i < channel_list->pos; i++) {
         if (strcmp(((Channel *)channel_list->buffer[i])->name, data->req_channel) == 0) {
-            for (j = 0; j < channel_list->size; j++) {
+            for (j = 0; j < channel_list->pos; j++) {
                 for (k = 0; k < ((Channel *)channel_list->buffer[j])->user_list->size; k++) {
                     if (((User *)((Channel *)channel_list->buffer[j])->user_list->buffer[k])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                         temp_user = ((User *)((Channel *)channel_list->buffer[j])->user_list->buffer[k]);
@@ -166,7 +166,7 @@ void user_join(request_join *data) {
     Channel new_channel;
     strcpy(new_channel.name, data->req_channel);
     new_channel.user_list = initList(50);
-    for (i = 0; i < channel_list->size; i++) {
+    for (i = 0; i < channel_list->pos; i++) {
         for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->size; j++) {
             if (((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
                 temp_user = ((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j]);
@@ -188,7 +188,7 @@ void user_join(request_join *data) {
 
 void user_leave(request_leave *data) {
     int i, j;
-    for (i = 0; i < channel_list->size; i++) {
+    for (i = 0; i < channel_list->pos; i++) {
         if (strcmp(((Channel *)channel_list->buffer[i])->name, data->req_channel) == 0) {
             for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->size; j++) {
                 if (((User *)((Channel *)channel_list->buffer[i])->user_list->buffer[j])->user_addr.sin_addr.s_addr == client_addr.sin_addr.s_addr) {
