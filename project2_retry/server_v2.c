@@ -55,7 +55,7 @@ int insertList(List *list, void *item) {
         printf("List is full and could not insert item\n");
         return 0;
     }
-    list->buffer[pos++] = item;
+    list->buffer[(list->pos)++] = item;
     list->isEmpty = 0;
     return 1;
 }
@@ -63,7 +63,7 @@ int insertList(List *list, void *item) {
 List *initServerList(int arg, char *args[]) {
     int size, i;
     SInfo s_info;
-    size = ((arg-2) - (arg%2))/2
+    size = ((arg-2) - (arg%2))/2;
     List *newlist = initList(size);
     bzero((char *)&(s_info.server_addr), sizeof(s_info.server_addr));
     s_info.server_addr.sin_family = AF_INET;
