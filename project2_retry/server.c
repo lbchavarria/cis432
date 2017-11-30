@@ -263,34 +263,34 @@ void client_data_handler() {
     printf("1\n");
     int nread;
     printf("Pre-Start\n");
-    void *cd;
+    CData *cd;
     unsigned int len = (unsigned int)sizeof(struct sockaddr_in);
     printf("Start\n");
-    nread = recvfrom(sockid, (CData *)&cd, sizeof(CData), 0, (struct sockaddr *)&client_addr, &len);
+    nread = recvfrom(sockid, &cd, sizeof(CData), 0, (struct sockaddr *)&client_addr, &len);
     if (nread > 0) {
         printf("Receive successful\n");
-        if (((CData *)&cd)->type == LOGIN) {
+        if (cd->type == LOGIN) {
             printf("Login\n");
             user_login((CData *)&cd);
         }
-        else if (((CData *)&cd)->type == LOGOUT) {
+        else if (cd->type == LOGOUT) {
             user_logout();
         }
-        else if (((CData *)&cd)->type == JOIN) {
+        else if (cd->type == JOIN) {
             user_join((CData *)&cd);
         }
-        else if (((CData *)&cd)->type == LEAVE) {
+        else if (cd->type == LEAVE) {
             user_leave((CData *)&cd);
         }
-        else if (((CData *)&cd)->type == SAY) {
+        else if (cd->type == SAY) {
             user_say((CData *)&cd);
         }
     }
     else {
         printf("Failed to receive data from client");
     }
-    //printf("Pre-Free\n");
-    //free(cd);
+    printf("Pre-Free\n");
+    free(cd);
     printf("FREE\n");
 }
 
