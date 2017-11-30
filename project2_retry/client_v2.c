@@ -44,7 +44,7 @@ void client_login(char *args[]) {
     }
 }
 
-char* get_char_input() {
+void get_char_input(char dest[]) {
     /* Read the input from client
      * Store input into char array and return char array
      */
@@ -71,7 +71,7 @@ char* get_char_input() {
             i++;
         }
     }
-    return txt;
+    strcpy(dest, txt);
 }
 
 request_t setType(char txt[]) {
@@ -107,7 +107,7 @@ request_t setType(char txt[]) {
             return REQ_SAY;
         }
         strcpy(temp_channel, "");
-        for (i = 0; i < (strlen(txt) - strlne("/leave ")); i++) {
+        for (i = 0; i < (strlen(txt) - strlen("/leave ")); i++) {
             if (i == CHANNEL_MAX) {
                 //current_channel[i] == '/0';
                 break;
@@ -271,7 +271,7 @@ int main(UNUSED int argc, char *argv[]) {
             continue;
         }
         client_data_handler(txt, rt);
-        if (rt == LOGOUT) {
+        if (rt == REQ_LOGOUT) {
             break;
         }
         server_data_handler();
