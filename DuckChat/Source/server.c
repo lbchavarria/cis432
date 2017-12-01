@@ -39,6 +39,7 @@ typedef map<string,struct sockaddr_in> channel_type; //<username, sockaddr_in of
 int s; //socket for listening
 struct sockaddr_in server;
 
+int time_count = 0;
 
 map<string,struct sockaddr_in> usernames; //<username, sockaddr_in of user>
 map<string,int> active_usernames; //0-inactive , 1-active
@@ -441,6 +442,8 @@ void handle_join_message(void *data, struct sockaddr_in sock)
 }
 
 void handle_sever_join_message(void *data, struct sockaddr_in sock) {
+    time_count = 0;
+    
     //get message fields
     struct request_join* msg;
     msg = (struct request_join*)data;
@@ -1312,26 +1315,31 @@ int send_say_message(void *data, struct sockaddr_in server_addr)
 }
 
 void timer_handler(int signum) {
-    int i;
+    int i, j;
     static int count = 0;
-    static int two_minute = 2
+    static int two_minute = 2;
     count++;
-    if (count == two_minute) {
-        for (i = 0; i < serverList->pos; i++) {
-            if (send_leave_message(channel, serverList->buffer[i])) {
+    for (i = 0; i < serverList->pos; i++) {
+        for (auto const &ent1 : subscribed_channels) {
+            if (send_join_message(ent1.first, serverList->buffer[i])) {
                 printf("Unable to send join message to another server\n");
             }
         }
+    }
+    if (count == two_minute && time_count) {
+        for (i = 0; i < serverList->pos; i++) {
+            for (auto const &ent1 : subscribed_channels) {
+                if (send_leave_message(ent1.first, serverList->buffer[i])) {
+                    printf("Unable to send join message to another server\n");
+                }
+            }
+        }
+        count2 == 0;
+    }
+    if (time_count = 0) {
+        time_count = 1;
         count = 0;
     }
-    else {
-        for (i = 0; i < serverList->pos; i++) {
-            if (send_join_message(channel, serverList->buffer[i])) {
-                printf("Unable to send join message to another server\n");
-            }
-        }
-    }
-    
 }
 
 
