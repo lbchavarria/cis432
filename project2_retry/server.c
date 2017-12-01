@@ -81,6 +81,9 @@ int insertList(List *list, void *item) {
 }
 
 List *initServerList(int arg, char *args[]) {
+    /* Create a list of servers
+     * Uses extra arguments to create obtain data of servers
+     */
     int size, i;
     SInfo s_info;
     size = ((arg-2) - (arg%2))/2;
@@ -95,16 +98,23 @@ List *initServerList(int arg, char *args[]) {
 }
 
 void timer_handler(int signum) {
+    /* Sends join to servers every minute
+     * After two minutes sends a leave if no users are in channel
+     */
     static int count = 0;
     static char temp_channel[CHANNEL_MAX];
     
 }
 
 void send_error(SData *sd) {
+    /* Sends error message to client
+     */
     
 }
 
 void send_say(SData *sd) {
+    /* Sends say message to other all clients in a channel
+     */
     printf("Start send\n");
     int retcode, i, j;
     for (i = 0; i < channel_list->pos; i++) {
@@ -127,6 +137,9 @@ void send_say(SData *sd) {
 }
 
 void user_login(CData *cd) {
+    /* Adds user to channel Common
+     * Creates channel Common if it doesn't exist
+     */
     printf("Start Login\n");
     int i;
     User new_user;
@@ -160,6 +173,9 @@ void user_login(CData *cd) {
 }
 
 void user_logout() {
+    /* Makes user inactive in all channels
+     * Inactive users are ignored by server
+     */
     int i, j;
     for (i = 0; i < channel_list->pos; i++) {
         for (j = 0; j < ((Channel *)channel_list->buffer[i])->user_list->pos; j++) {
@@ -171,6 +187,9 @@ void user_logout() {
 }
 
 void user_join(CData *cd) {
+    /* User joins a channel
+     * Channel is created if it doesn't exist
+     */
     int i, j, k;
     int done = 0;
     User *temp_user;
@@ -218,6 +237,8 @@ void user_join(CData *cd) {
 }
 
 void user_leave(CData *cd) {
+    /* User becomes inactive in a certain channel
+     */
     int i, j;
     for (i = 0; i < channel_list->pos; i++) {
         if (strcmp(((Channel *)channel_list->buffer[i])->name, cd->channel) == 0) {
@@ -232,6 +253,8 @@ void user_leave(CData *cd) {
 }
 
 void user_say(CData *cd) {
+    /* Creates data to send to all users in a channel
+     */
     printf("Start Say\n");
     int i, j;
     int done = 0;
@@ -261,6 +284,9 @@ void user_say(CData *cd) {
 }
 
 void client_data_handler() {
+    /* Handles data received from client
+     * Checks type to know what to do with data
+     */
     int nread;
     printf("Pre-Start\n");
     CData cd;

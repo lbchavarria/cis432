@@ -12,6 +12,7 @@
 
 #define UNUSED __attribute__ ((unused))
 
+//Global variables
 int sockid;
 struct sockaddr_in server_addr, from;
 char current_channel[CHANNEL_MAX+1], temp_channel[CHANNEL_MAX+1], user_name[USERNAME_MAX+1];
