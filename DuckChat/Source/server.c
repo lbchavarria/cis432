@@ -76,7 +76,7 @@ void handle_socket_input();
 void handle_login_message(void *data, struct sockaddr_in sock);
 void handle_logout_message(struct sockaddr_in sock);
 void handle_join_message(void *data, struct sockaddr_in sock);
-void handle_server_join_message(void *data, strcut sockaddr_in sock);
+void handle_server_join_message(void *data, struct sockaddr_in sock);
 void handle_leave_message(void *data, struct sockaddr_in sock);
 void handle_server_leave_message(void *data, struct sockaddr_in sock);
 void handle_say_message(void *data, struct sockaddr_in sock);
@@ -237,15 +237,15 @@ int main(int argc, char *argv[])
                     map<string, channel_type>::iterator server_channel_iter;
                     
                     for (channel_iter = channels.begin(); channel_iter != channels.end(); channel_iter++) {
-                        struct server_request_join s2s_join;
+                        struct request_join req_join;
                         ssize_t bytes;
                         void *send_data;
                         size_t len;
                         
-                        s2s_join.req_type = SERVER_REQ_JOIN;
-                        strcpy(s2s_join.req_channel, channel_iter->first.c_str());
-                        send_data = &s2s_join;
-                        len = sizeof s2s_join;
+                        req_join.req_type = S_JOIN;
+                        strcpy(req_join.req_channel, channel_iter->first.c_str());
+                        send_data = &req_join;
+                        len = sizeof req_join;
                         bytes = sendto(s, send_data, len, 0, (struct sockaddr*)&(server_iter->second), sizeof (server_iter->second));
                         if (bytes < 0) {
                             perror("Message failed");
@@ -757,7 +757,7 @@ void handle_server_join_message(void *data, struct sockaddr_in sock) {
                     pair<string, time_t> channel_time;
                     
                     time(&new_time);
-                    channel_time.first - channel;
+                    channel_time.first = channel;
                     memcpy(&channel_time.second, &new_time, sizeof new_time);
                     server_timer[origin_key] = channel_time;
                     (server_channels[channel])[server_iter->first] = server_iter->second;
@@ -942,7 +942,7 @@ void handle_leave_message(void *data, struct sockaddr_in sock)
 
 void handle_server_leave_message(void *data, struct sockaddr_in sock) {
     
-    struct server_request_leave* msg;
+    struct request_leave* msg;
     string ip, channel, key;
     int port;
     char port_str[6];
@@ -950,7 +950,7 @@ void handle_server_leave_message(void *data, struct sockaddr_in sock) {
     
     msg = (struct server_request_leave*)data;
     channel = msg->req_channel;
-    sip = inet_ntoa(sock.sin_addr);
+    ip = inet_ntoa(sock.sin_addr);
     port = ntohs(sock.sin_port);
     sprintf(port_str, "%d", port);
     key = ip + "." +port_str;
@@ -986,7 +986,7 @@ void handle_say_message(void *data, struct sockaddr_in sock)
     string channel = msg->req_channel;
     string text = msg->req_text;
 
-    printf("recv Request Say %s \"%s\"", channel, text);
+    //printf("recv Request Say %s \"%s\"", channel, text);
     
     string ip = inet_ntoa(sock.sin_addr);
 
@@ -1102,11 +1102,11 @@ void handle_say_message(void *data, struct sockaddr_in sock)
                     strcpy(s_req_say.req_channel, str);
                     str = username.c_str();
                     strcpy(s_req_say.req_username, str);
-                    str = txt.c_str();
+                    str = text.c_str();
                     strcpy(s_req_say.req_text, str);
                     for (int i = 0; i < MAX_MESSAGE_LEN; i++) {
                         if (strcmp(uuids[i], uuid_chars) == 0) {
-                            strcpy(s_req_say.uuid_str, uuids[k]);
+                            strcpy(s_req_say.uuid_str, uuids[i]);
                         }
                     }
                     send_data = &s_req_say;
@@ -1117,7 +1117,7 @@ void handle_say_message(void *data, struct sockaddr_in sock)
                         perror("Message failed\n");
                     }
                     else  {
-                        cout << inet_ntoa(servre.sin_addr) << ":" << (int)ntohs(server.sin_port) << " " << inet_ntoa(send_sock.sin_addr) << ":" << (int)ntohs(send_sock.sin_port) << " send S2S Request Say " << channel << " " << username << " \"" << text << "\"" << endl;
+                        cout << inet_ntoa(server.sin_addr) << ":" << (int)ntohs(server.sin_port) << " " << inet_ntoa(send_sock.sin_addr) << ":" << (int)ntohs(send_sock.sin_port) << " send S2S Request Say " << channel << " " << username << " \"" << text << "\"" << endl;
                     }
                 }
             }
@@ -1253,7 +1253,7 @@ void handle_say_message(void *data, struct sockaddr_in sock)
 }*/
 
 void handle_server_say_message(void *data, struct sockaddr_in sock) {
-    struct server_request_say* msg;
+    struct s_request_say* msg;
     char channel[CHANNEL_MAX], username[USERNAME_MAX], text[SAY_MAX], uuid_chars[37], port_str[6];
     string ip, origin_server;
     int server_subscribers;
