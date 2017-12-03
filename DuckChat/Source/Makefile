@@ -3,7 +3,7 @@ CC=g++
 # Uncomment this line for the graduate student version
 CFLAGS= -g  -DGRAD=1
 
-LOADLIBES= -lnsl
+LOADLIBES= -lnsl -luuid
 
 all: client server
 
