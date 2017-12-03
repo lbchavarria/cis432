@@ -948,7 +948,7 @@ void handle_server_leave_message(void *data, struct sockaddr_in sock) {
     char port_str[6];
     map<string,struct sockaddr_in>::iterator server_iter;
     
-    msg = (struct server_request_leave*)data;
+    msg = (struct request_leave*)data;
     channel = msg->req_channel;
     ip = inet_ntoa(sock.sin_addr);
     port = ntohs(sock.sin_port);
@@ -1259,7 +1259,7 @@ void handle_server_say_message(void *data, struct sockaddr_in sock) {
     int server_subscribers;
     map<string,struct sockaddr_in>::iterator server_iter;
     
-    msg = (struct server_request_say*)data;
+    msg = (struct s_request_say*)data;
     strcpy(channel, msg->req_channel);
     strcpy(username, msg->req_username);
     strcpy(text, msg->req_text);
